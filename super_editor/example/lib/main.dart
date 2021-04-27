@@ -1,4 +1,5 @@
 import 'package:example/demos/demo_markdown_serialization.dart';
+import 'package:example/demos/demo_ondemand_markdown_serialization.dart';
 import 'package:example/demos/demo_paragraphs.dart';
 import 'package:example/demos/demo_selectable_text.dart';
 import 'package:example/demos/example_editor.dart';
@@ -160,6 +161,13 @@ final _menu = <_MenuGroup>[
         title: 'Markdown Serialization Demo',
         pageBuilder: (context) {
           return MarkdownSerializationDemo();
+        },
+      ),
+      _MenuItem(
+        icon: Icons.description,
+        title: 'Ondemand Serialization Demo',
+        pageBuilder: (context) {
+          return DemoOndemandMarkdownSerializationEditor();
         },
       ),
     ],
