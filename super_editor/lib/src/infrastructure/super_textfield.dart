@@ -55,8 +55,10 @@ class SuperTextField extends StatefulWidget {
     this.hintBehavior = HintBehavior.displayHintUntilFocus,
     this.onRightClick,
     this.keyboardHandlers = defaultTextFieldKeyboardHandlers,
+    this.textGlobalKey,
   }) : super(key: key);
 
+  final GlobalKey<SuperSelectableTextState>? textGlobalKey;
   final FocusNode? focusNode;
 
   final AttributedTextEditingController? textController;
@@ -92,7 +94,7 @@ class SuperTextField extends StatefulWidget {
 }
 
 class SuperTextFieldState extends State<SuperTextField> {
-  final _selectableTextKey = GlobalKey<SuperSelectableTextState>();
+  var _selectableTextKey;
   final _textScrollKey = GlobalKey<SuperTextFieldScrollviewState>();
   late FocusNode _focusNode;
   bool _hasFocus = false; // cache whether we have focus so we know when it changes
@@ -108,7 +110,7 @@ class SuperTextFieldState extends State<SuperTextField> {
 
     _focusNode = (widget.focusNode ?? FocusNode())..addListener(_onFocusChange);
     _hasFocus = _focusNode.hasFocus;
-
+    _selectableTextKey = widget.textGlobalKey ?? GlobalKey<SuperSelectableTextState>();
     _controller = (widget.textController ?? AttributedTextEditingController())
       ..addListener(_onSelectionOrContentChange);
     _scrollController = ScrollController();
@@ -140,6 +142,10 @@ class SuperTextFieldState extends State<SuperTextField> {
         widget.minLines != oldWidget.minLines ||
         widget.maxLines != oldWidget.maxLines) {
       _onSelectionOrContentChange();
+    }
+
+    if (widget.textGlobalKey != oldWidget.textGlobalKey) {
+      _selectableTextKey = widget.textGlobalKey ?? GlobalKey<SuperSelectableTextState>();
     }
   }
 
