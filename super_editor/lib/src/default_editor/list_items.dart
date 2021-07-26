@@ -116,13 +116,13 @@ class UnorderedListItemComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     final indentSpace = indentExtent * (indent + 1);
     final firstLineHeight = styleBuilder({}).fontSize;
-    const manualVerticalAdjustment = 2.0;
+    final manualVerticalAdjustment = 2.0;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          margin: const EdgeInsets.only(top: manualVerticalAdjustment),
+          margin: EdgeInsets.only(top: manualVerticalAdjustment),
           decoration: BoxDecoration(
             border: Border.all(width: 1, color: showDebugPaint ? Colors.grey : Colors.transparent),
           ),
@@ -203,7 +203,7 @@ class OrderedListItemComponent extends StatelessWidget {
   Widget build(BuildContext context) {
     final indentSpace = indentExtent * (indent + 1);
     final firstLineHeight = styleBuilder({}).fontSize!;
-    const manualVerticalAdjustment = 2.0;
+    final manualVerticalAdjustment = 2.0;
     final manualHeightAdjustment = firstLineHeight * 0.15;
 
     return Row(
@@ -212,7 +212,7 @@ class OrderedListItemComponent extends StatelessWidget {
         Container(
           width: indentSpace,
           height: firstLineHeight + manualHeightAdjustment,
-          margin: const EdgeInsets.only(top: manualVerticalAdjustment),
+          margin: EdgeInsets.only(top: manualVerticalAdjustment),
           decoration: BoxDecoration(
             border: Border.all(width: 1, color: showDebugPaint ? Colors.grey : Colors.transparent),
           ),
@@ -321,7 +321,10 @@ class ConvertListItemToParagraphCommand implements EditorCommand {
       text: listItem.text,
       metadata: paragraphMetadata ?? {},
     );
-    transaction.replaceNode(oldNode: listItem, newNode: newParagraphNode);
+    final listItemIndex = document.getNodeIndex(listItem);
+    transaction
+      ..deleteNodeAt(listItemIndex)
+      ..insertNodeAt(listItemIndex, newParagraphNode);
   }
 }
 
@@ -344,7 +347,10 @@ class ConvertParagraphToListItemCommand implements EditorCommand {
       itemType: type,
       text: paragraphNode.text,
     );
-    transaction.replaceNode(oldNode: paragraphNode, newNode: newListItemNode);
+    final paragraphIndex = document.getNodeIndex(paragraphNode);
+    transaction
+      ..deleteNodeAt(paragraphIndex)
+      ..insertNodeAt(paragraphIndex, newListItemNode);
   }
 }
 
@@ -366,7 +372,10 @@ class ChangeListItemTypeCommand implements EditorCommand {
       itemType: newType,
       text: existingListItem.text,
     );
-    transaction.replaceNode(oldNode: existingListItem, newNode: newListItemNode);
+    final nodeIndex = document.getNodeIndex(existingListItem);
+    transaction
+      ..deleteNodeAt(nodeIndex)
+      ..insertNodeAt(nodeIndex, newListItemNode);
   }
 }
 

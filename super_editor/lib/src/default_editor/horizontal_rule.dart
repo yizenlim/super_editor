@@ -18,10 +18,10 @@ class HorizontalRuleNode with ChangeNotifier implements DocumentNode {
   final String id;
 
   @override
-  BinaryNodePosition get beginningPosition => const BinaryNodePosition.included();
+  BinaryNodePosition get beginningPosition => BinaryNodePosition.included();
 
   @override
-  BinaryNodePosition get endPosition => const BinaryNodePosition.included();
+  BinaryNodePosition get endPosition => BinaryNodePosition.included();
 
   @override
   NodePosition selectUpstreamPosition(NodePosition position1, NodePosition position2) {
@@ -56,7 +56,7 @@ class HorizontalRuleNode with ChangeNotifier implements DocumentNode {
     @required dynamic base,
     @required dynamic extent,
   }) {
-    return const BinarySelection.all();
+    return BinarySelection.all();
   }
 
   @override
@@ -65,7 +65,7 @@ class HorizontalRuleNode with ChangeNotifier implements DocumentNode {
       throw Exception('HorizontalRuleNode can only copy content from a BinarySelection.');
     }
 
-    return selection.position == const BinaryNodePosition.included() ? '---' : null;
+    return selection.position == BinaryNodePosition.included() ? '---' : null;
   }
 
   @override

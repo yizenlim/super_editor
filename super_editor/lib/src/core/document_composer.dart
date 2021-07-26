@@ -1,15 +1,14 @@
 import 'package:flutter/foundation.dart';
-import 'package:super_editor/src/core/document.dart';
 import 'package:super_editor/src/infrastructure/attributed_spans.dart';
 
 import 'document_selection.dart';
 
-/// Maintains a [DocumentSelection] within a [Document] and
+/// Maintains a `DocumentSelection` within a `Document` and
 /// uses that selection to edit the document.
 class DocumentComposer with ChangeNotifier {
-  /// Constructs a [DocumentComposer] with the given [initialSelection].
+  /// Constructs a `DocumentComposer` with the given `initialSelection`.
   ///
-  /// The [initialSelection] may be omitted if no initial selection is
+  /// The `initialSelection` may be omitted if no initial selection is
   /// desired.
   DocumentComposer({
     DocumentSelection? initialSelection,
@@ -28,10 +27,10 @@ class DocumentComposer with ChangeNotifier {
 
   DocumentSelection? _selection;
 
-  /// Returns the current [DocumentSelection] for a [Document].
+  /// Returns the current `DocumentSelection` for a `Document`.
   DocumentSelection? get selection => _selection;
 
-  /// Sets the current [selection] for a [Document].
+  /// Sets the current `selection` for a `Document`.
   set selection(DocumentSelection? newSelection) {
     if (newSelection != _selection) {
       _selection = newSelection;
@@ -39,7 +38,7 @@ class DocumentComposer with ChangeNotifier {
     }
   }
 
-  /// Clears the current [selection].
+  /// Clears the current `selection`.
   void clearSelection() {
     selection = null;
   }
@@ -58,7 +57,7 @@ class ComposerPreferences with ChangeNotifier {
   final Set<Attribution> _currentAttributions = {};
 
   /// Returns the styles that should be applied to the next
-  /// character that is entered in a [Document].
+  /// character that is entered in a `Document`.
   Set<Attribution> get currentAttributions => _currentAttributions;
 
   /// Adds [attribution] to [currentAttributions].
@@ -109,7 +108,7 @@ class ComposerPreferences with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Removes all styles from [currentAttributions].
+  /// Removes all styles from `currentStyles`.
   void clearStyles() {
     _currentAttributions.clear();
     notifyListeners();

@@ -19,6 +19,7 @@ import 'package:super_editor/src/infrastructure/attributed_text.dart';
 import 'package:super_editor/src/infrastructure/composable_text.dart';
 import 'package:super_editor/src/infrastructure/keyboard.dart';
 import 'package:super_editor/src/infrastructure/super_selectable_text.dart';
+import 'package:super_editor/src/undoredo/undo_redo.dart';
 
 final _log = Logger(scope: 'text.dart');
 
@@ -59,7 +60,7 @@ class TextNode with ChangeNotifier implements DocumentNode {
   Map<String, dynamic> get metadata => _metadata;
 
   @override
-  TextNodePosition get beginningPosition => const TextNodePosition(offset: 0);
+  TextNodePosition get beginningPosition => TextNodePosition(offset: 0);
 
   @override
   TextNodePosition get endPosition => TextNodePosition(offset: text.text.length);
@@ -111,7 +112,7 @@ class TextNode with ChangeNotifier implements DocumentNode {
 
   @override
   bool hasEquivalentContent(DocumentNode other) {
-    return other is TextNode && text == other.text && const DeepCollectionEquality().equals(metadata, other.metadata);
+    return other is TextNode && text == other.text && DeepCollectionEquality().equals(metadata, other.metadata);
   }
 
   @override
@@ -177,7 +178,6 @@ class TextComponent extends StatefulWidget {
     Key? key,
     required this.text,
     this.textAlign,
-    this.textDirection,
     required this.textStyleBuilder,
     this.metadata = const {},
     this.textSelection,
@@ -190,7 +190,6 @@ class TextComponent extends StatefulWidget {
 
   final AttributedText text;
   final TextAlign? textAlign;
-  final TextDirection? textDirection;
   final AttributionStyleBuilder textStyleBuilder;
   final Map<String, dynamic> metadata;
   final TextSelection? textSelection;
@@ -258,7 +257,7 @@ class _TextComponentState extends State<TextComponent> with DocumentComponent im
 
   @override
   TextNodePosition getBeginningPosition() {
-    return const TextNodePosition(offset: 0);
+    return TextNodePosition(offset: 0);
   }
 
   @override
@@ -528,8 +527,7 @@ class _TextComponentState extends State<TextComponent> with DocumentComponent im
       key: _selectableTextKey,
       textSpan: richText,
       textAlign: widget.textAlign ?? TextAlign.left,
-      textDirection: widget.textDirection ?? TextDirection.ltr,
-      textSelection: widget.textSelection ?? const TextSelection.collapsed(offset: -1),
+      textSelection: widget.textSelection ?? TextSelection.collapsed(offset: -1),
       textSelectionDecoration: TextSelectionDecoration(selectionColor: widget.selectionColor),
       showCaret: widget.showCaret,
       textCaretFactory: TextCaretFactory(color: widget.caretColor),
@@ -852,6 +850,7 @@ ExecutionInstruction anyCharacterToInsertInTextContent({
   if (keyEvent.isMetaPressed || keyEvent.isControlPressed) {
     return ExecutionInstruction.continueExecution;
   }
+
   if (editContext.composer.selection == null) {
     return ExecutionInstruction.continueExecution;
   }
@@ -864,11 +863,26 @@ ExecutionInstruction anyCharacterToInsertInTextContent({
   if (keyEvent.character == null || keyEvent.character == '') {
     return ExecutionInstruction.continueExecution;
   }
-  if (LogicalKeyboardKey.isControlCharacter(keyEvent.character!)) {
-    return ExecutionInstruction.continueExecution;
-  }
 
   String character = keyEvent.character!;
+/*
+  if(UndoRedo.undoStack.first.action == 'anyCharacterToInsertInTextContent'){
+
+    DocumentSelection documentSelection =  DocumentSelection(base: UndoRedo.undoStack.first.documentSelection.base, extent: editContext.composer.selection!.extent);
+    String charString = '${UndoRedo.undoStack.first.serializedString}$character';
+
+
+
+    UndoRedo.editStack('undo', Edit(documentSelection: documentSelection,
+        action: 'anyCharacterToInsertInTextContent',
+        serializedString: charString), 0);
+
+
+  }
+
+  UndoRedo.addUndoRedo('undo', Edit(documentSelection: editContext.composer.selection!,
+      action: 'anyCharacterToInsertInTextContent',
+      serializedString: character));*/
 
   // On web, keys like shift and alt are sending their full name
   // as a character, e.g., "Shift" and "Alt". This check prevents

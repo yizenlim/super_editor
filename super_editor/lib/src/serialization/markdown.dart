@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:super_editor/src/default_editor/attributions.dart';
+import 'package:super_editor/src/undoredo/undo_redo.dart';
 import 'package:super_editor/super_editor.dart';
 import 'package:markdown/markdown.dart' as md;
 
@@ -10,7 +11,7 @@ import 'package:markdown/markdown.dart' as md;
 //       requires one. When the editing system matures, there should
 //       be a way to return something here that is not concrete.
 MutableDocument deserializeMarkdownToDocument(String markdown) {
-  final markdownLines = const LineSplitter().convert(markdown);
+  final markdownLines = LineSplitter().convert(markdown);
 
   final markdownDoc = md.Document();
   final blockParser = md.BlockParser(markdownLines, markdownDoc);
@@ -53,18 +54,25 @@ String serializeDocumentToMarkdown(Document doc) {
       final metadata = node.metadata;
       final Attribution? blockType = metadata['blockType'];
 
+      //TODO: Handle heading
       if (blockType == header1Attribution) {
         buffer..writeln('# ${node.text.toMarkdown()}')..writeln('');
+
       } else if (blockType == header2Attribution) {
         buffer..writeln('## ${node.text.toMarkdown()}')..writeln('');
+
       } else if (blockType == header3Attribution) {
         buffer..writeln('### ${node.text.toMarkdown()}')..writeln('');
+
       } else if (blockType == header4Attribution) {
         buffer..writeln('#### ${node.text.toMarkdown()}')..writeln('');
+
       } else if (blockType == header5Attribution) {
         buffer..writeln('##### ${node.text.toMarkdown()}')..writeln('');
+
       } else if (blockType == header6Attribution) {
         buffer..writeln('###### ${node.text.toMarkdown()}')..writeln('');
+
       } else if (blockType == blockquoteAttribution) {
         // TODO: handle multiline
         buffer..writeln('> ${node.text.toMarkdown()}')..writeln();

@@ -8,6 +8,7 @@ import 'package:super_editor/src/core/edit_context.dart';
 import 'package:super_editor/src/default_editor/attributions.dart';
 import 'package:super_editor/src/infrastructure/_logging.dart';
 import 'package:super_editor/src/infrastructure/keyboard.dart';
+import 'package:super_editor/src/undoredo/undo_redo.dart';
 import 'package:super_editor/super_editor.dart';
 
 import 'document_interaction.dart';
@@ -215,6 +216,154 @@ class _PasteEditorCommand implements EditorCommand {
   }
 }
 
+
+
+///REDO
+ExecutionInstruction redoWhenCmdYIsPressed({
+  required EditContext editContext,
+  required RawKeyEvent keyEvent,
+}) {
+  if (!keyEvent.isPrimaryShortcutKeyPressed || keyEvent.character?.toLowerCase() != 'y') {
+    return ExecutionInstruction.continueExecution;
+  }
+  if (editContext.composer.selection == null) {
+    return ExecutionInstruction.continueExecution;
+  }
+
+  ///Check Redo Stack
+  if(UndoRedo.redoStack.isEmpty) {
+    return ExecutionInstruction.haltExecution;
+  }  else {
+    ///1)examine top of the stack what has been carriedout
+    ///2)execute inverse functions
+    ///3)update stack
+    switch(UndoRedo.redoStack.first.action ){
+      case 'cutWhenCmdXIsPressed' :
+        UndoRedo.undoStack.first.action;
+        break;
+
+      case 'cmdBToToggleBold' :
+        _undoCmdBToToggleBold(edit: UndoRedo.undoStack.first ,editContext: editContext);
+        break;
+
+      case 'cmdBToToggleItalics' :
+        _undoCmdIToToggleItalics(edit: UndoRedo.undoStack.first ,editContext: editContext);
+        break;
+
+      default : return ExecutionInstruction.haltExecution;
+
+    }
+
+
+    UndoRedo.updateStacks('undo', UndoRedo.undoStack.first);
+
+
+  }
+
+
+  return ExecutionInstruction.haltExecution;
+}
+
+
+
+///UNDO
+ExecutionInstruction undoWhenCmdZIsPressed({
+  required EditContext editContext,
+  required RawKeyEvent keyEvent,
+}) {
+  if (!keyEvent.isPrimaryShortcutKeyPressed || keyEvent.character?.toLowerCase() != 'z') {
+    return ExecutionInstruction.continueExecution;
+  }
+  if (editContext.composer.selection == null) {
+    return ExecutionInstruction.continueExecution;
+  }
+
+
+
+  ///Check Undo Stack
+  if(UndoRedo.undoStack.isEmpty) {
+    return ExecutionInstruction.haltExecution;
+  }  else {
+    //TODO: 2) execute inverse command after switch
+    //TODO: 3) move to redo stack
+    ///1)examine top of the stack what has been carriedout
+    ///2)execute inverse functions
+    ///3)update stack
+    switch(UndoRedo.undoStack.first.action ){
+      case 'cutWhenCmdXIsPressed' :
+        _undoCutWhenCmdXIsPressed(edit: UndoRedo.undoStack.first ,editContext: editContext);
+        break;
+
+      case 'cmdBToToggleBold' :
+        _undoCmdBToToggleBold(edit: UndoRedo.undoStack.first ,editContext: editContext);
+        break;
+
+      case 'cmdBToToggleItalics' :
+        _undoCmdIToToggleItalics(edit: UndoRedo.undoStack.first ,editContext: editContext);
+        break;
+
+      default : return ExecutionInstruction.haltExecution;
+
+    }
+
+
+    UndoRedo.updateStacks('undo', UndoRedo.undoStack.first);
+
+
+
+
+  }
+
+
+
+
+  return ExecutionInstruction.haltExecution;
+}
+
+
+
+///1) Move caret to selection baseExtent
+///2) Insert the text
+///3) update Stack
+void _undoCutWhenCmdXIsPressed({
+  required EditContext editContext,
+  required Edit edit,
+}) {
+
+  editContext.commonOps.insertCaretAtPosition( edit.documentSelection.base);
+  editContext.commonOps.insertPlainText(edit.serializedString);
+
+}
+
+
+///1) Move caret to selection baseExtent
+///2) Insert the text
+///3) update Stack
+void _undoCmdBToToggleBold({
+  required EditContext editContext,
+  required Edit edit,
+}) {
+
+  editContext.commonOps.selectRegion(baseDocumentPosition: edit.documentSelection.base ,extentDocumentPosition: edit.documentSelection.extent);
+  editContext.commonOps.toggleAttributionsOnSelection({boldAttribution});;
+
+}
+
+
+///1) Move caret to selection baseExtent
+///2) Insert the text
+///3) update Stack
+void _undoCmdIToToggleItalics({
+  required EditContext editContext,
+  required Edit edit,
+}) {
+
+  editContext.commonOps.selectRegion(baseDocumentPosition: edit.documentSelection.base ,extentDocumentPosition: edit.documentSelection.extent);
+  editContext.commonOps.toggleAttributionsOnSelection({italicsAttribution});;
+
+}
+
+
 ExecutionInstruction copyWhenCmdVIsPressed({
   required EditContext editContext,
   required RawKeyEvent keyEvent,
@@ -239,6 +388,105 @@ ExecutionInstruction copyWhenCmdVIsPressed({
 
   return ExecutionInstruction.haltExecution;
 }
+
+
+ExecutionInstruction cutWhenCmdXIsPressed({
+  required EditContext editContext,
+  required RawKeyEvent keyEvent,
+}) {
+  if (!keyEvent.isPrimaryShortcutKeyPressed || keyEvent.character?.toLowerCase() != 'x') {
+    return ExecutionInstruction.continueExecution;
+  }
+  if (editContext.composer.selection == null) {
+    return ExecutionInstruction.continueExecution;
+  }
+  if (editContext.composer.selection!.isCollapsed) {
+    // Nothing to copy, but we technically handled the task.
+    return ExecutionInstruction.haltExecution;
+  }
+
+  _copyWithTextReturn(
+    document: editContext.editor.document,
+    documentSelection: editContext.composer.selection!,
+  ).then((selectedText) =>
+
+      UndoRedo.addUndoRedo('undo',
+          Edit(action: 'cutWhenCmdXIsPressed',
+              documentSelection: editContext.composer.selection!,
+              serializedString: selectedText))
+  );
+
+
+
+  editContext.commonOps.deleteSelection();
+
+
+  return ExecutionInstruction.haltExecution;
+}
+
+Future<String> _copyWithTextReturn({
+  required Document document,
+  required DocumentSelection documentSelection,
+}) async {
+  final selectedNodes = document.getNodesInside(
+    documentSelection.base,
+    documentSelection.extent,
+  );
+
+  final buffer = StringBuffer();
+  for (int i = 0; i < selectedNodes.length; ++i) {
+    final selectedNode = selectedNodes[i];
+    dynamic nodeSelection;
+
+    if (i == 0) {
+      // This is the first node and it may be partially selected.
+      final baseSelectionPosition = selectedNode.id == documentSelection.base.nodeId
+          ? documentSelection.base.nodePosition
+          : documentSelection.extent.nodePosition;
+
+      final extentSelectionPosition =
+      selectedNodes.length > 1 ? selectedNode.endPosition : documentSelection.extent.nodePosition;
+
+      nodeSelection = selectedNode.computeSelection(
+        base: baseSelectionPosition,
+        extent: extentSelectionPosition,
+      );
+    } else if (i == selectedNodes.length - 1) {
+      // This is the last node and it may be partially selected.
+      final nodePosition = selectedNode.id == documentSelection.base.nodeId
+          ? documentSelection.base.nodePosition
+          : documentSelection.extent.nodePosition;
+
+      nodeSelection = selectedNode.computeSelection(
+        base: selectedNode.beginningPosition,
+        extent: nodePosition,
+      );
+    } else {
+      // This node is fully selected. Copy the whole thing.
+      nodeSelection = selectedNode.computeSelection(
+        base: selectedNode.beginningPosition,
+        extent: selectedNode.endPosition,
+      );
+    }
+
+    final nodeContent = selectedNode.copyContent(nodeSelection);
+    if (nodeContent != null) {
+      buffer.write(nodeContent);
+      if (i < selectedNodes.length - 1) {
+        buffer.writeln();
+      }
+    }
+  }
+
+  await Clipboard.setData(
+    ClipboardData(
+      text: buffer.toString(),
+    ),
+  );
+
+  return buffer.toString();
+}
+
 
 Future<void> _copy({
   required Document document,
@@ -311,11 +559,22 @@ ExecutionInstruction cmdBToToggleBold({
 
   if (editContext.composer.selection!.isCollapsed) {
     editContext.commonOps.toggleComposerAttributions({boldAttribution});
+    UndoRedo.addUndoRedo('undo',
+        Edit(action: 'cmdBToToggleBold',
+            documentSelection: editContext.composer.selection!,
+            serializedString: ''));
     return ExecutionInstruction.haltExecution;
   } else {
     editContext.commonOps.toggleAttributionsOnSelection({boldAttribution});
+    UndoRedo.addUndoRedo('undo',
+        Edit(action: 'cmdBToToggleBold',
+            documentSelection: editContext.composer.selection!,
+            serializedString: ''));
     return ExecutionInstruction.haltExecution;
   }
+
+
+
 }
 
 ExecutionInstruction cmdIToToggleItalics({
@@ -328,9 +587,17 @@ ExecutionInstruction cmdIToToggleItalics({
 
   if (editContext.composer.selection!.isCollapsed) {
     editContext.commonOps.toggleComposerAttributions({italicsAttribution});
+      UndoRedo.addUndoRedo('undo',
+        Edit(action: 'cmdIToToggleItalics',
+            documentSelection: editContext.composer.selection!,
+            serializedString: ''));
     return ExecutionInstruction.haltExecution;
   } else {
     editContext.commonOps.toggleAttributionsOnSelection({italicsAttribution});
+      UndoRedo.addUndoRedo('undo',
+        Edit(action: 'cmdIToToggleItalics',
+            documentSelection: editContext.composer.selection!,
+            serializedString: ''));
     return ExecutionInstruction.haltExecution;
   }
 }
@@ -401,7 +668,7 @@ DocumentPosition _getDocumentPositionAfterDeletion({
       // Assume that the node was replaced with an empty paragraph.
       newSelectionPosition = DocumentPosition(
         nodeId: newSelectionPosition.nodeId,
-        nodePosition: const TextNodePosition(offset: 0),
+        nodePosition: TextNodePosition(offset: 0),
       );
     }
   } else {
@@ -414,7 +681,7 @@ DocumentPosition _getDocumentPositionAfterDeletion({
       // Assume that the node was replace with an empty paragraph.
       newSelectionPosition = DocumentPosition(
         nodeId: baseNode.id,
-        nodePosition: const TextNodePosition(offset: 0),
+        nodePosition: TextNodePosition(offset: 0),
       );
     } else if (basePosition.nodePosition is TextPosition) {
       final baseOffset = (basePosition.nodePosition as TextPosition).offset;

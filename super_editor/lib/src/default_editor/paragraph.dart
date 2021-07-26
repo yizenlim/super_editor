@@ -12,9 +12,9 @@ import 'package:super_editor/src/default_editor/text.dart';
 import 'package:super_editor/src/infrastructure/_logging.dart';
 import 'package:super_editor/src/infrastructure/attributed_text.dart';
 import 'package:super_editor/src/infrastructure/keyboard.dart';
+import 'package:super_editor/src/undoredo/undo_redo.dart';
 
 import 'styles.dart';
-import 'text_tools.dart';
 
 final _log = Logger(scope: 'paragraph.dart');
 
@@ -143,11 +143,9 @@ ExecutionInstruction anyCharacterToInsertInParagraph({
   if (editContext.composer.selection == null) {
     return ExecutionInstruction.continueExecution;
   }
+
   var character = keyEvent.character;
   if (character == null || character == '') {
-    return ExecutionInstruction.continueExecution;
-  }
-  if (LogicalKeyboardKey.isControlCharacter(keyEvent.character!)) {
     return ExecutionInstruction.continueExecution;
   }
   // On web, keys like shift and alt are sending their full name
@@ -168,6 +166,31 @@ ExecutionInstruction anyCharacterToInsertInParagraph({
   }
 
   final didInsertCharacter = editContext.commonOps.insertCharacter(character);
+  print('anyCharacterToInsertInParagraph $character UndoRedo.undoStack.first.action ');
+/*
+
+  if(UndoRedo.undoStack.isNotEmpty && UndoRedo.undoStack.first.action == 'anyCharacterToInsertInParagraph'){
+
+    print('UndoRedo.undoStack.first.action == anyCharacterToInsertInParagraph ');
+    DocumentSelection documentSelection =  DocumentSelection(base: UndoRedo.undoStack.first.documentSelection.base, extent: editContext.composer.selection!.extent);
+    String charString = '${UndoRedo.undoStack.first.serializedString}$character';
+
+
+
+    UndoRedo.editStack('undo', Edit(documentSelection: documentSelection,
+        action: 'anyCharacterToInsertInParagraph',
+        serializedString: charString), 0);
+
+
+  } else {
+    UndoRedo.addUndoRedo(
+        'undo',
+        Edit(
+            documentSelection: editContext.composer.selection!,
+            action: 'anyCharacterToInsertInParagraph',
+            serializedString: character));
+  }
+*/
 
   if (didInsertCharacter && character == ' ') {
     editContext.commonOps.convertParagraphByPatternMatching(
@@ -315,9 +338,7 @@ Widget? paragraphBuilder(ComponentContext componentContext) {
   _log.log('paragraphBuilder', '   - base: ${textSelection?.base}');
   _log.log('paragraphBuilder', '   - extent: ${textSelection?.extent}');
 
-  final textDirection = getParagraphDirection((componentContext.documentNode as TextNode).text.text);
-
-  TextAlign textAlign = (textDirection == TextDirection.ltr) ? TextAlign.left : TextAlign.right;
+  TextAlign textAlign = TextAlign.left;
   final textAlignName = (componentContext.documentNode as TextNode).metadata['textAlign'];
   switch (textAlignName) {
     case 'left':
@@ -340,7 +361,6 @@ Widget? paragraphBuilder(ComponentContext componentContext) {
     textStyleBuilder: componentContext.extensions[textStylesExtensionKey],
     metadata: (componentContext.documentNode as TextNode).metadata,
     textAlign: textAlign,
-    textDirection: textDirection,
     textSelection: textSelection,
     selectionColor: (componentContext.extensions[selectionStylesExtensionKey] as SelectionStyle).selectionColor,
     showCaret: showCaret,

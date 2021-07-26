@@ -186,7 +186,7 @@ class SuperEditor extends StatefulWidget {
 
   /// Paints some extra visual ornamentation to help with
   /// debugging, when true.
-  final bool showDebugPaint;
+  final showDebugPaint;
 
   @override
   _SuperEditorState createState() => _SuperEditorState();
@@ -338,14 +338,14 @@ class _SuperEditorState extends State<SuperEditor> {
 }
 
 /// Default visual styles related to content selection.
-const defaultSelectionStyle = SelectionStyle(
+final defaultSelectionStyle = const SelectionStyle(
   textCaretColor: Colors.black,
   selectionColor: Color(0xFFACCEF7),
 );
 
 /// Creates [TextStyles] for the standard [SuperEditor].
 TextStyle defaultStyleBuilder(Set<Attribution> attributions) {
-  TextStyle newStyle = const TextStyle(
+  TextStyle newStyle = TextStyle(
     color: Colors.black,
     fontSize: 13,
     height: 1.4,
@@ -412,21 +412,30 @@ final defaultComponentBuilders = <ComponentBuilder>[
 /// Keyboard actions for the standard [SuperEditor].
 final defaultKeyboardActions = <DocumentKeyboardAction>[
   doNothingWhenThereIsNoSelection,
-  pasteWhenCmdVIsPressed,
+
+
+  pasteWhenCmdVIsPressed, //record
   copyWhenCmdVIsPressed,
+  cutWhenCmdXIsPressed, //record
+
   selectAllWhenCmdAIsPressed,
   moveUpDownLeftAndRightWithArrowKeys,
-  tabToIndentListItem,
-  shiftTabToUnIndentListItem,
+  tabToIndentListItem, //record
+  shiftTabToUnIndentListItem, //record
   backspaceToUnIndentListItem,
   backspaceToClearParagraphBlockType,
-  cmdBToToggleBold,
-  cmdIToToggleItalics,
+  cmdBToToggleBold,//record
+  cmdIToToggleItalics,//record
   shiftEnterToInsertNewlineInBlock,
   enterToInsertBlockNewline,
   backspaceToRemoveUpstreamContent,
   deleteToRemoveDownstreamContent,
+
+  undoWhenCmdZIsPressed,
+  redoWhenCmdYIsPressed,
+
   anyCharacterOrDestructiveKeyToDeleteSelection,
   anyCharacterToInsertInParagraph,
   anyCharacterToInsertInTextContent,
+
 ];

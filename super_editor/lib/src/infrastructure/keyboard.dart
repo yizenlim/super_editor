@@ -45,4 +45,7 @@ const webBugBlacklistCharacters = {
   'Paste',
   'Print Screen',
   'Power',
+  'ArrowRight',
+  'ArrowLeft',
+
 };

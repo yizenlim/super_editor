@@ -16,7 +16,6 @@ import 'paragraph.dart';
 import 'styles.dart';
 import 'text.dart';
 
-// ignore: unused_element
 final _log = Logger(scope: 'blockquote.dart');
 
 /// Displays a blockquote in a document.
@@ -79,7 +78,10 @@ class ConvertBlockquoteToParagraphCommand implements EditorCommand {
       id: blockquote.id,
       text: blockquote.text,
     );
-    transaction.replaceNode(oldNode: blockquote, newNode: newParagraphNode);
+    final blockquoteNodeIndex = document.getNodeIndex(blockquote);
+    transaction
+      ..deleteNodeAt(blockquoteNodeIndex)
+      ..insertNodeAt(blockquoteNodeIndex, newParagraphNode);
   }
 }
 

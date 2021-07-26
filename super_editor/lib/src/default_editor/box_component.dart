@@ -7,7 +7,6 @@ import 'package:super_editor/super_editor.dart';
 import '../core/document.dart';
 import '../core/document_layout.dart';
 
-// ignore: unused_element
 final _log = Logger(scope: 'box_component.dart');
 
 /// Editor layout component that displays content that is either
@@ -28,12 +27,12 @@ class BoxComponent extends StatefulWidget {
 class _BoxComponentState extends State<BoxComponent> with DocumentComponent {
   @override
   BinaryNodePosition getBeginningPosition() {
-    return const BinaryNodePosition.included();
+    return BinaryNodePosition.included();
   }
 
   @override
   BinaryNodePosition getBeginningPositionNearX(double x) {
-    return const BinaryNodePosition.included();
+    return BinaryNodePosition.included();
   }
 
   @override
@@ -66,7 +65,7 @@ class _BoxComponentState extends State<BoxComponent> with DocumentComponent {
       throw Exception('The given nodePosition ($nodePosition) is not compatible with BoxComponent');
     }
 
-    return const BinarySelection.all();
+    return BinarySelection.all();
   }
 
   @override
@@ -76,12 +75,12 @@ class _BoxComponentState extends State<BoxComponent> with DocumentComponent {
 
   @override
   BinaryNodePosition getEndPosition() {
-    return const BinaryNodePosition.included();
+    return BinaryNodePosition.included();
   }
 
   @override
   BinaryNodePosition getEndPositionNearX(double x) {
-    return const BinaryNodePosition.included();
+    return BinaryNodePosition.included();
   }
 
   @override
@@ -119,7 +118,7 @@ class _BoxComponentState extends State<BoxComponent> with DocumentComponent {
 
   @override
   BinaryNodePosition getPositionAtOffset(Offset localOffset) {
-    return const BinaryNodePosition.included();
+    return BinaryNodePosition.included();
   }
 
   @override
@@ -131,17 +130,17 @@ class _BoxComponentState extends State<BoxComponent> with DocumentComponent {
       throw Exception('The given extentPosition ($extentPosition) is not compatible with BoxComponent');
     }
 
-    return const BinarySelection.all();
+    return BinarySelection.all();
   }
 
   @override
   BinarySelection getSelectionInRange(Offset localBaseOffset, Offset localExtentOffset) {
-    return const BinarySelection.all();
+    return BinarySelection.all();
   }
 
   @override
   BinarySelection getSelectionOfEverything() {
-    return const BinarySelection.all();
+    return BinarySelection.all();
   }
 
   @override

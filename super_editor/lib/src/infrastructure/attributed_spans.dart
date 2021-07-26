@@ -45,7 +45,7 @@ class AttributedSpans {
   /// with no spans.
   AttributedSpans({
     List<SpanMarker>? attributions,
-  }) : _attributions = [...?attributions] {
+  }) : _attributions = attributions ?? [] {
     _sortAttributions();
   }
 
@@ -745,7 +745,7 @@ class AttributedSpans {
 
     // Re-insert any markers that are needed to retain
     // symmetry after the deletions above.
-    for (final attribution in needToStartAttributions) {
+    needToStartAttributions.forEach((attribution) {
       final offset = startOffset > 0 ? startOffset - 1 : 0;
       _log.log('contractAttributions', 'adding back a start marker at $offset');
       contractedAttributions.add(SpanMarker(
@@ -753,8 +753,8 @@ class AttributedSpans {
         offset: offset,
         markerType: SpanMarkerType.start,
       ));
-    }
-    for (final attribution in needToEndAttributions) {
+    });
+    needToEndAttributions.forEach((attribution) {
       final offset = startOffset > 0 ? startOffset - 1 : 0;
       _log.log('contractAttributions', 'adding back an end marker at $offset');
       contractedAttributions.add(SpanMarker(
@@ -762,7 +762,7 @@ class AttributedSpans {
         offset: offset,
         markerType: SpanMarkerType.end,
       ));
-    }
+    });
 
     // Add all remaining markers but with an `offset`
     // that is less by `count`.
@@ -895,7 +895,7 @@ class AttributedSpans {
       identical(this, other) ||
       other is AttributedSpans &&
           runtimeType == other.runtimeType &&
-          const DeepCollectionEquality().equals(_attributions, other._attributions);
+          DeepCollectionEquality().equals(_attributions, other._attributions);
 
   @override
   int get hashCode => _attributions.hashCode;
