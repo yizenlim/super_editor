@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:super_editor/src/infrastructure/_logging.dart';
 import 'package:super_editor/super_editor.dart';
 
 import '../core/document.dart';
 import 'box_component.dart';
 import 'styles.dart';
+final _log = Logger(scope: 'paragraph.dart');
 
 /// [DocumentNode] that represents an image at a URL.
 class ImageNode with ChangeNotifier implements DocumentNode {
@@ -148,4 +150,69 @@ Widget? imageBuilder(ComponentContext componentContext) {
     isSelected: isSelected,
     selectionColor: (componentContext.extensions[selectionStylesExtensionKey] as SelectionStyle).selectionColor,
   );
+}
+
+
+class AddImageNodeCommand implements EditorCommand {
+  AddImageNodeCommand({
+    this.imageUrl,
+
+    required this.nodeId,
+    required this.splitPosition,
+    required this.newNodeId,
+    required this.newNodeId2,
+    required this.replicateExistingMetdata,
+  });
+
+  final String nodeId;
+  final String newNodeId2;
+  final String? imageUrl;
+  final TextPosition splitPosition;
+  final String newNodeId;
+  final bool replicateExistingMetdata;
+
+  @override
+  void execute(Document document, DocumentEditorTransaction transaction) {
+    _log.log('SplitParagraphCommand', 'Executing SplitParagraphCommand');
+
+    final node = document.getNodeById(nodeId);
+    if (node is! ParagraphNode) {
+      _log.log('SplitParagraphCommand', 'WARNING: Cannot split paragraph for node of type: $node.');
+      return;
+    }
+
+    final text = node.text;
+    final startText = text.copyText(0, splitPosition.offset);
+    final endText = text.copyText(splitPosition.offset);
+
+    // Change the current nodes content to just the text before the caret.
+    _log.log('SplitParagraphCommand', ' - changing the original paragraph text due to split');
+    node.text = startText;
+
+    final newNode2 = ParagraphNode(
+      id: newNodeId2,
+      text: endText,
+      metadata: replicateExistingMetdata ? node.metadata : {},
+    );
+    // Create a new node that will follow the current node. Set its text
+    // to the text that was removed from the current node.
+    final newNode = ImageNode(imageUrl:
+      imageUrl ?? 'https://img.i-scmp.com/cdn-cgi/image/fit=contain,width=1098,format=auto/sites/default/files/styles/1200x800/public/d8/images/methode/2020/07/30/71d9817e-cd5f-11ea-9c1b-809cdd34beb3_image_hires_180404.jpg?itok=T05ePhZI&v=1596103451'
+      , id: newNodeId,
+    );
+
+    // Insert the new node after the current node.
+    _log.log('SplitParagraphCommand', ' - inserting new node in document');
+    transaction.insertNodeAfter(
+      previousNode: node,
+      newNode: newNode,
+    );
+    transaction.insertNodeAfter(
+      previousNode: newNode,
+      newNode: newNode2,
+    );
+
+
+    _log.log('SplitParagraphCommand', ' - inserted new node: ${newNode.id} after old one: ${node.id}');
+  }
 }

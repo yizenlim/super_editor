@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:example/demos/example_editor/static_toolbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:super_editor/super_editor.dart';
@@ -33,7 +34,7 @@ class _ExampleEditorState extends State<ExampleEditor> {
   @override
   void initState() {
     super.initState();
-    _doc = createInitialDocument()..addListener(_hideOrShowToolbar);
+    _doc = createEmptyDocument()..addListener(_hideOrShowToolbar);
     _docEditor = DocumentEditor(document: _doc as MutableDocument);
     _composer = DocumentComposer()..addListener(_hideOrShowToolbar);
     _editorFocusNode = FocusNode();
@@ -153,14 +154,40 @@ class _ExampleEditorState extends State<ExampleEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return SuperEditor.standard(
-      editor: _docEditor!,
-      composer: _composer,
-      focusNode: _editorFocusNode,
-      scrollController: _scrollController,
-      documentLayoutKey: _docLayoutKey,
-      maxWidth: 600, // arbitrary choice for maximum width
-      padding: const EdgeInsets.symmetric(vertical: 56, horizontal: 24),
+    return Column(mainAxisSize: MainAxisSize.min,
+      children: [
+
+       /* Container(child:
+        Row(children: [
+          IconButton(onPressed: (){},
+          icon: const Icon(Icons.format_bold )),
+
+
+          IconButton(onPressed: (){},
+              icon: const Icon(Icons.format_bold ))
+        ],)
+        ),*/
+
+        SizedBox(height: 100,),
+        Container(
+        height:40,
+            width: 600,
+            child: StaticEditorToolbar(composer:_composer ,editor: _docEditor!,)),
+        Expanded(
+          child: Container(
+
+            child: SuperEditor.standard(
+              editor: _docEditor!,
+              composer: _composer,
+              focusNode: _editorFocusNode,
+              scrollController: _scrollController,
+              documentLayoutKey: _docLayoutKey,
+              maxWidth: 600, // arbitrary choice for maximum width
+              padding: const EdgeInsets.symmetric(vertical: 56, horizontal: 24),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

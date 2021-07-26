@@ -46,7 +46,7 @@ abstract class Document with ChangeNotifier {
   /// [Document].
   DocumentNode? getNodeAfter(DocumentNode node);
 
-  /// Returns the [DocumentNode] at the given [position], or [null] if
+  /// Returns the [DocumentNode] at the given [positigetDocumentSelectionInRegionon], or [null] if
   /// no such node exists in this [Document].
   DocumentNode? getNode(DocumentPosition position);
 

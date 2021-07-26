@@ -92,3 +92,19 @@ Document createInitialDocument() {
     ],
   );
 }
+
+
+Document createEmptyDocument() {
+  return MutableDocument(
+    nodes: [
+
+      ParagraphNode(
+      id: DocumentEditor.createNodeId(),
+      text: AttributedText(
+        text: 'Replace this text, Start typing',
+      ),
+
+    ),
+    ],
+  );
+}

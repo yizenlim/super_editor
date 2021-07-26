@@ -32,3 +32,8 @@ export 'src/default_editor/unknown_component.dart';
 
 // TODO: move to separate package
 export 'src/serialization/markdown.dart';
+
+
+///Forked Content
+export 'src/toolbar/static_toolbar.dart';
+export 'src/undoredo/undo_redo.dart';
