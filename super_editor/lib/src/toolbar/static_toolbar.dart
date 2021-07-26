@@ -239,12 +239,22 @@ class _StaticEditorToolbarState extends State<StaticEditorToolbar> {
   void _addImage() {
     widget.editor!.executeCommand(
       AddImageNodeCommand(
-        nodeId: widget.composer!.selection!.extent.nodeId,splitPosition: widget.composer!.selection!.extent.nodePosition as TextPosition,
-       newNodeId: DocumentEditor.createNodeId(),replicateExistingMetdata: false,newNodeId2: DocumentEditor.createNodeId()
+          nodeId: widget.composer!.selection!.extent.nodeId,splitPosition: widget.composer!.selection!.extent.nodePosition as TextPosition,
+          newNodeId: DocumentEditor.createNodeId(),newNodeId2:DocumentEditor.createNodeId(),replicateExistingMetdata: false
       ),
     );
   }
 
+
+  static void addImageNode(DocumentEditor editor ,String nodeId,TextPosition splitPosition  , String url){
+    editor.executeCommand(
+      AddImageNodeCommand(
+          nodeId: nodeId,splitPosition: splitPosition,imageUrl: url,
+          newNodeId: DocumentEditor.createNodeId() ,newNodeId2:DocumentEditor.createNodeId()  ,replicateExistingMetdata: false
+      ),
+    );
+
+  }
 
 
 
@@ -410,7 +420,6 @@ class _StaticEditorToolbarState extends State<StaticEditorToolbar> {
     selectedNode.metadata['textAlign'] = newAlignmentValue;
   }
 
-
   @override
   Widget build(BuildContext context) {
     return SizedBox.expand(child: _buildToolbar());
@@ -479,14 +488,15 @@ class _StaticEditorToolbarState extends State<StaticEditorToolbar> {
               child: IconButton(
                 onPressed: (){
 
-
-                  _addImage();
+                  if(widget.addImageDialog==null) {
+                    _addImage();
+                  } else {
+                    showDialog(context: context, builder: (builder){
+                      return widget.addImageDialog!;
+                    });
+                  }
                   /// 1. Get position
 
-
-                  showDialog(context: context, builder: (builder){
-                    return widget.addImageDialog!;
-                  });
 
                   /// 2. showDialog select
                   /// 3. add an ImageNode to NodePosition

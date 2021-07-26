@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:example/demos/example_editor/static_toolbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:super_editor/super_editor.dart';
