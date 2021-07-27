@@ -153,6 +153,7 @@ class _ExampleEditorState extends State<ExampleEditor> {
 
   @override
   Widget build(BuildContext context) {
+    print('nodes ${_doc.nodes}');
     return Column(mainAxisSize: MainAxisSize.min,
       children: [
 
@@ -171,7 +172,7 @@ class _ExampleEditorState extends State<ExampleEditor> {
         Container(
         height:40,
             width: 600,
-            child: StaticEditorToolbar(composer:_composer ,editor: _docEditor!,)),
+            child: StaticEditorToolbar(composer:_composer ,editor: _docEditor!,anchor: _selectionAnchor,)),
         Expanded(
           child: Container(
 

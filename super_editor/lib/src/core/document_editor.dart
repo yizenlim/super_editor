@@ -82,6 +82,13 @@ class DocumentEditorTransaction {
     _document.insertNodeAfter(previousNode: previousNode, newNode: newNode);
   }
 
+  void insertMultipleNodesAfter({
+    required DocumentNode previousNode,
+    required List<DocumentNode> newNodes,
+  }) {
+    _document.insertMultipleNodesAfter(previousNode: previousNode, newNodes: newNodes);
+  }
+
   /// Deletes the node at the given `index`.
   void deleteNodeAt(int index) {
     _document.deleteNodeAt(index);
@@ -204,6 +211,25 @@ class MutableDocument with ChangeNotifier implements Document {
     if (nodeIndex >= 0 && nodeIndex < nodes.length) {
       nodes.insert(nodeIndex + 1, newNode);
       newNode.addListener(_forwardNodeChange);
+      notifyListeners();
+    }
+  }
+
+  ///Insert nodes
+  void insertMultipleNodesAfter({
+    required DocumentNode previousNode,
+    required List<DocumentNode> newNodes,
+  }) {
+    int nodeIndex = nodes.indexOf(previousNode);
+    if (nodeIndex >= 0 && nodeIndex < nodes.length) {
+
+      for(int i =0 ; i < newNodes.length; i++){
+        nodeIndex = i +1 ;
+        nodes.insert(nodeIndex , newNodes[i]);
+        newNodes[i].addListener(_forwardNodeChange);
+
+      }
+
       notifyListeners();
     }
   }

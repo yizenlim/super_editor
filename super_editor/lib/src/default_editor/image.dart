@@ -156,14 +156,14 @@ Widget? imageBuilder(ComponentContext componentContext) {
 class AddImageNodeCommand implements EditorCommand {
   AddImageNodeCommand({
     this.imageUrl,
-
+    required this.documentSelection,
     required this.nodeId,
     required this.splitPosition,
     required this.newNodeId,
     required this.newNodeId2,
     required this.replicateExistingMetdata,
   });
-
+  final DocumentSelection documentSelection ;
   final String nodeId;
   final String newNodeId2;
   final String? imageUrl;
@@ -212,6 +212,12 @@ class AddImageNodeCommand implements EditorCommand {
       newNode: newNode2,
     );
 
+
+
+    UndoRedo.addUndoRedo('undo', Edit(documentSelection:documentSelection ,action: 'AddImageNodeCommand',serializedString: '',nodes: [
+      node,newNode,newNode2
+    ] ));
+    print('nodes ${document.nodes}');
 
     _log.log('SplitParagraphCommand', ' - inserted new node: ${newNode.id} after old one: ${node.id}');
   }

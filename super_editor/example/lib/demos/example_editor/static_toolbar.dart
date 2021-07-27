@@ -240,18 +240,19 @@ class _StaticEditorToolbarState extends State<StaticEditorToolbar> {
   void _addImage() {
     widget.editor!.executeCommand(
       AddImageNodeCommand(
+
         nodeId: widget.composer!.selection!.extent.nodeId,splitPosition: widget.composer!.selection!.extent.nodePosition as TextPosition,
-       newNodeId: DocumentEditor.createNodeId(),newNodeId2:DocumentEditor.createNodeId(),replicateExistingMetdata: false
+       newNodeId: DocumentEditor.createNodeId(),newNodeId2:DocumentEditor.createNodeId(),replicateExistingMetdata: false ,documentSelection: widget.composer!.selection!
       ),
     );
   }
 
 
-  static void addImageNode(DocumentEditor editor ,String nodeId,TextPosition splitPosition  , String url){
+  static void addImageNode(DocumentComposer composer ,DocumentEditor editor ,String nodeId,TextPosition splitPosition  , String url){
     editor.executeCommand(
       AddImageNodeCommand(
           nodeId: nodeId,splitPosition: splitPosition,imageUrl: url,
-          newNodeId: DocumentEditor.createNodeId() ,newNodeId2:DocumentEditor.createNodeId()  ,replicateExistingMetdata: false
+          newNodeId: DocumentEditor.createNodeId() ,newNodeId2:DocumentEditor.createNodeId()  ,replicateExistingMetdata: false,documentSelection: composer.selection!
       ),
     );
 

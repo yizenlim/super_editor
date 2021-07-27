@@ -47,8 +47,12 @@ class UndoRedo {
       print('${undoStack}, ${redoStack}');
 
     } else {
+      print('redo');
       undoStack.insert(0, edit);
       redoStack.removeAt(0);
+
+      print('after update stacks');
+      print('${undoStack}, ${redoStack}');
     }
   }
 }
@@ -57,9 +61,11 @@ class Edit {
   DocumentSelection documentSelection;
   String serializedString;
   String action;
+  List<DocumentNode> nodes;
 
   Edit(
       {required this.documentSelection,
       required this.serializedString,
-      required this.action});
+      required this.action,
+      required this.nodes});
 }

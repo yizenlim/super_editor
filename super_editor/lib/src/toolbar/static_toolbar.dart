@@ -15,10 +15,18 @@ class StaticEditorToolbar extends StatefulWidget {
 
   const StaticEditorToolbar({
     Key? key,
+    required this.anchor,
     this.addImageDialog,
     required this.editor,
     required this.composer,
   }) : super(key: key);
+
+  /// [EditorToolbar] displays itself horizontally centered and
+  /// slightly above the given [anchor] value.
+  ///
+  /// [anchor] is a [ValueNotifier] so that [EditorToolbar] can
+  /// reposition itself as the [Offset] value changes.
+  final ValueNotifier<Offset?> anchor;
 
   /// The [editor] is used to alter document content, such as
   /// when the user selects a different block format for a
@@ -81,26 +89,31 @@ class _StaticEditorToolbarState extends State<StaticEditorToolbar> {
   ///
   /// Throws an exception if the currently selected node is not a text node.
   _TextType _getCurrentTextType() {
-    final selectedNode = widget.editor!.document.getNodeById(widget.composer!.selection!.extent.nodeId);
-    if (selectedNode is ParagraphNode) {
-      final type = selectedNode.metadata['blockType'];
+    if(widget.composer!.selection != null){
+      final selectedNode = widget.editor!.document
+          .getNodeById(widget.composer!.selection!.extent.nodeId);
+      if (selectedNode is ParagraphNode) {
+        final type = selectedNode.metadata['blockType'];
 
-      if (type == header1Attribution) {
-        return _TextType.header1;
-      } else if (type == header2Attribution) {
-        return _TextType.header2;
-      } else if (type == header3Attribution) {
-        return _TextType.header3;
-      } else if (type == blockquoteAttribution) {
-        return _TextType.blockquote;
+        if (type == header1Attribution) {
+          return _TextType.header1;
+        } else if (type == header2Attribution) {
+          return _TextType.header2;
+        } else if (type == header3Attribution) {
+          return _TextType.header3;
+        } else if (type == blockquoteAttribution) {
+          return _TextType.blockquote;
+        } else {
+          return _TextType.paragraph;
+        }
+      } else if (selectedNode is ListItemNode) {
+        return selectedNode.type == ListItemType.ordered
+            ? _TextType.orderedListItem
+            : _TextType.unorderedListItem;
       } else {
         return _TextType.paragraph;
       }
-    } else if (selectedNode is ListItemNode) {
-      return selectedNode.type == ListItemType.ordered ? _TextType.orderedListItem : _TextType.unorderedListItem;
-    } else {
-      throw Exception('Invalid node type: $selectedNode');
-    }
+    } else {return _TextType.paragraph;}
   }
 
   /// Returns the text alignment of the currently selected text node.
@@ -239,18 +252,19 @@ class _StaticEditorToolbarState extends State<StaticEditorToolbar> {
   void _addImage() {
     widget.editor!.executeCommand(
       AddImageNodeCommand(
+
           nodeId: widget.composer!.selection!.extent.nodeId,splitPosition: widget.composer!.selection!.extent.nodePosition as TextPosition,
-          newNodeId: DocumentEditor.createNodeId(),newNodeId2:DocumentEditor.createNodeId(),replicateExistingMetdata: false
+          newNodeId: DocumentEditor.createNodeId(),newNodeId2:DocumentEditor.createNodeId(),replicateExistingMetdata: false ,documentSelection: widget.composer!.selection!
       ),
     );
   }
 
 
-  static void addImageNode(DocumentEditor editor ,String nodeId,TextPosition splitPosition  , String url){
+  static void addImageNode(DocumentComposer composer ,DocumentEditor editor ,String nodeId,TextPosition splitPosition  , String url){
     editor.executeCommand(
       AddImageNodeCommand(
           nodeId: nodeId,splitPosition: splitPosition,imageUrl: url,
-          newNodeId: DocumentEditor.createNodeId() ,newNodeId2:DocumentEditor.createNodeId()  ,replicateExistingMetdata: false
+          newNodeId: DocumentEditor.createNodeId() ,newNodeId2:DocumentEditor.createNodeId()  ,replicateExistingMetdata: false,documentSelection: composer.selection!
       ),
     );
 
@@ -420,9 +434,35 @@ class _StaticEditorToolbarState extends State<StaticEditorToolbar> {
     selectedNode.metadata['textAlign'] = newAlignmentValue;
   }
 
+  /// Returns the localized name for the given [_TextType], e.g.,
+  /// "Paragraph" or "Header 1".
+  String _getTextTypeName(_TextType textType) {
+    switch (textType) {
+      case _TextType.header1:
+        return 'Header 1';
+      case _TextType.header2:
+        return 'Header 2';
+      case _TextType.header3:
+        return 'Header 3';
+      case _TextType.paragraph:
+        return 'Paragraph';
+      case _TextType.blockquote:
+        return 'Blockquotes';
+      case _TextType.orderedListItem:
+        return 'Ordered List Item';
+      case _TextType.unorderedListItem:
+        return 'Unordered List Item';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SizedBox.expand(child: _buildToolbar());
+    return ValueListenableBuilder(
+        valueListenable: widget.anchor,
+        builder: (context, dynamic offset, child) {
+        return SizedBox.expand(child: _buildToolbar());
+      }
+    );
   }
 
   Widget _buildToolbar() {
@@ -465,6 +505,29 @@ class _StaticEditorToolbarState extends State<StaticEditorToolbar> {
 //              ),
 //              _buildVerticalDivider(),
 //            ],
+
+
+            DropdownButton<_TextType>(
+              value: _getCurrentTextType(),
+              items: _TextType.values
+                  .map((textType) => DropdownMenuItem<_TextType>(
+                value: textType,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 16.0),
+                  child: Text(_getTextTypeName(textType)),
+                ),
+              ))
+                  .toList(),
+              icon: const Icon(Icons.arrow_drop_down),
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 12,
+              ),
+              underline: const SizedBox(),
+              elevation: 0,
+              itemHeight: 48,
+              onChanged: _convertTextToNewType,
+            ),
             Center(
               child: IconButton(
                 onPressed: _toggleBold,splashRadius: 15,
