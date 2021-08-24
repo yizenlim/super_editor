@@ -755,57 +755,35 @@ ExecutionInstruction backspaceToRemoveUpstreamContent({
   }
 
 
-
-
-//  print('COMPOSER Selection ${editContext.composer.selection}');
+  /// Confirm composer's selection exists and collapsed
   if(editContext.composer.selection !=null ){
     if (editContext.composer.selection!.isCollapsed ) {
 
+      ///Get the node and nodeIndex from Editor
      DocumentNode? node = editContext.editor.document.getNode(editContext.composer.selection!.extent);
         int nodeIndex = editContext.editor.document.getNodeIndex(node!);
 
      if (node != null ){
+       ///Check Node Type
        if(node is ParagraphNode || node is TextNode) {
+
+        ///Convert TextPosition
           TextNodePosition nodePosition = TextNodePosition.fromTextPosition(
               node.endPosition as TextPosition);
+
+
           nodePosition.offset == 0;
 
-//          print('node OFFSET ${nodePosition.offset}');
-
+          ///Checks if offset is 0 (top of the node) && nodeIndex ==0 (Top of nodes List)
           if (nodePosition.offset == 0 && nodeIndex ==0) {
             return ExecutionInstruction.haltExecution;
           }
         }
-//       if(editContext.composer.selection!.extent == DocumentPosition(nodeId: node.id ,nodePosition: TextNodePosition(offset: )) )
-
      }
-
-
     }
   }
-
-/*
-  print(editContext.editor.document.nodes.first.endPosition);
-
-  if (editContext.editor.document.nodes.first is ParagraphNode ){
-
-    print(' is an paragraph node ');
-
-    ParagraphNode node = editContext.editor.document.nodes.first as ParagraphNode;
-
-    if(node.text.text.isEmpty && node.endPosition == const TextNodePosition(offset: 0, affinity: TextAffinity.downstream)) {
-      return ExecutionInstruction.haltExecution;
-    }
-  } else if (editContext.editor.document.nodes.first is ImageNode){
-
-    print(' is an image node ');
-  }
-  */
-
-
 
   final didDelete = editContext.commonOps.deleteUpstream();
-
   return didDelete ? ExecutionInstruction.haltExecution : ExecutionInstruction.continueExecution;
 }
 
