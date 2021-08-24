@@ -757,7 +757,7 @@ ExecutionInstruction backspaceToRemoveUpstreamContent({
 
 
 
-  print('COMPOSER Selection ${editContext.composer.selection}');
+//  print('COMPOSER Selection ${editContext.composer.selection}');
   if(editContext.composer.selection !=null ){
     if (editContext.composer.selection!.isCollapsed ) {
 
@@ -770,7 +770,7 @@ ExecutionInstruction backspaceToRemoveUpstreamContent({
               node.endPosition as TextPosition);
           nodePosition.offset == 0;
 
-          print('node OFFSET ${nodePosition.offset}');
+//          print('node OFFSET ${nodePosition.offset}');
 
           if (nodePosition.offset == 0 && nodeIndex ==0) {
             return ExecutionInstruction.haltExecution;
