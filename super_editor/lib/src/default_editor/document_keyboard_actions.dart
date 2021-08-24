@@ -756,23 +756,10 @@ ExecutionInstruction backspaceToRemoveUpstreamContent({
 
 
 
-  print('backspace remove upstraeam only 1 node ${editContext.editor.document.nodes.length == 1}: ${editContext.editor.document.nodes.length }');
-
-  for(int i = 0 ; i <editContext.editor.document.nodes.length ; i ++ ){
-    print(editContext.editor.document.nodes.first.runtimeType);
-
-
-
-
-  }
-
-
 
   print('COMPOSER Selection ${editContext.composer.selection}');
   if(editContext.composer.selection !=null ){
-    if (editContext.composer.selection!.isCollapsed /*&&
-
-        editContext.composer.selection!.extent ==editContext.editor.document.nodes.first.po*/) {
+    if (editContext.composer.selection!.isCollapsed ) {
 
      DocumentNode? node = editContext.editor.document.getNode(editContext.composer.selection!.extent);
         int nodeIndex = editContext.editor.document.getNodeIndex(node!);
