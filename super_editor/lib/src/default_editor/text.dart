@@ -161,6 +161,8 @@ class TextNodeSelection extends TextSelection implements NodeSelection {
 
 /// A logical position within a [TextNode].
 class TextNodePosition extends TextPosition implements NodePosition {
+
+
   TextNodePosition.fromTextPosition(TextPosition position)
       : super(offset: position.offset, affinity: position.affinity);
 

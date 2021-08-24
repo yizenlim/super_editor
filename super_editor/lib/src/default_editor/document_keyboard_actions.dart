@@ -754,6 +754,69 @@ ExecutionInstruction backspaceToRemoveUpstreamContent({
     return ExecutionInstruction.continueExecution;
   }
 
+
+
+  print('backspace remove upstraeam only 1 node ${editContext.editor.document.nodes.length == 1}: ${editContext.editor.document.nodes.length }');
+
+  for(int i = 0 ; i <editContext.editor.document.nodes.length ; i ++ ){
+    print(editContext.editor.document.nodes.first.runtimeType);
+
+
+
+
+  }
+
+
+
+  print('COMPOSER Selection ${editContext.composer.selection}');
+  if(editContext.composer.selection !=null ){
+    if (editContext.composer.selection!.isCollapsed /*&&
+
+        editContext.composer.selection!.extent ==editContext.editor.document.nodes.first.po*/) {
+
+     DocumentNode? node = editContext.editor.document.getNode(editContext.composer.selection!.extent);
+        int nodeIndex = editContext.editor.document.getNodeIndex(node!);
+
+     if (node != null ){
+       if(node is ParagraphNode || node is TextNode) {
+          TextNodePosition nodePosition = TextNodePosition.fromTextPosition(
+              node.endPosition as TextPosition);
+          nodePosition.offset == 0;
+
+          print('node OFFSET ${nodePosition.offset}');
+
+          if (nodePosition.offset == 0 && nodeIndex ==0) {
+            return ExecutionInstruction.haltExecution;
+          }
+        }
+//       if(editContext.composer.selection!.extent == DocumentPosition(nodeId: node.id ,nodePosition: TextNodePosition(offset: )) )
+
+     }
+
+
+    }
+  }
+
+/*
+  print(editContext.editor.document.nodes.first.endPosition);
+
+  if (editContext.editor.document.nodes.first is ParagraphNode ){
+
+    print(' is an paragraph node ');
+
+    ParagraphNode node = editContext.editor.document.nodes.first as ParagraphNode;
+
+    if(node.text.text.isEmpty && node.endPosition == const TextNodePosition(offset: 0, affinity: TextAffinity.downstream)) {
+      return ExecutionInstruction.haltExecution;
+    }
+  } else if (editContext.editor.document.nodes.first is ImageNode){
+
+    print(' is an image node ');
+  }
+  */
+
+
+
   final didDelete = editContext.commonOps.deleteUpstream();
 
   return didDelete ? ExecutionInstruction.haltExecution : ExecutionInstruction.continueExecution;
