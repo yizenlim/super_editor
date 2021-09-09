@@ -648,30 +648,30 @@ ExecutionInstruction cmdIToToggleItalics({
   }
 }
 
-ExecutionInstruction cmdUToToggleUnderline({
-  required EditContext editContext,
-  required RawKeyEvent keyEvent,
-}) {
-  if (!keyEvent.isPrimaryShortcutKeyPressed || keyEvent.character?.toLowerCase() != 'u') {
-    return ExecutionInstruction.continueExecution;
-  }
-
-  if (editContext.composer.selection!.isCollapsed) {
-    editContext.commonOps.toggleComposerAttributions({underlineAttribution});
-    UndoRedo.addUndoRedo('undo',
-        Edit(action: 'cmdUToToggleUnderline',
-            documentSelection: editContext.composer.selection!,
-            serializedString: '',nodes:editContext.editor.document.getNodesInside(editContext.composer.selection!.base, editContext.composer.selection!.extent)));
-    return ExecutionInstruction.haltExecution;
-  } else {
-    editContext.commonOps.toggleAttributionsOnSelection({underlineAttribution});
-    UndoRedo.addUndoRedo('undo',
-        Edit(action: 'cmdUToToggleUnderline',
-            documentSelection: editContext.composer.selection!,
-            serializedString: '',nodes:editContext.editor.document.getNodesInside(editContext.composer.selection!.base, editContext.composer.selection!.extent)));
-    return ExecutionInstruction.haltExecution;
-  }
-}
+//ExecutionInstruction cmdUToToggleUnderline({
+//  required EditContext editContext,
+//  required RawKeyEvent keyEvent,
+//}) {
+//  if (!keyEvent.isPrimaryShortcutKeyPressed || keyEvent.character?.toLowerCase() != 'u') {
+//    return ExecutionInstruction.continueExecution;
+//  }
+//
+//  if (editContext.composer.selection!.isCollapsed) {
+//    editContext.commonOps.toggleComposerAttributions({underlineAttribution});
+//    UndoRedo.addUndoRedo('undo',
+//        Edit(action: 'cmdUToToggleUnderline',
+//            documentSelection: editContext.composer.selection!,
+//            serializedString: '',nodes:editContext.editor.document.getNodesInside(editContext.composer.selection!.base, editContext.composer.selection!.extent)));
+//    return ExecutionInstruction.haltExecution;
+//  } else {
+//    editContext.commonOps.toggleAttributionsOnSelection({underlineAttribution});
+//    UndoRedo.addUndoRedo('undo',
+//        Edit(action: 'cmdUToToggleUnderline',
+//            documentSelection: editContext.composer.selection!,
+//            serializedString: '',nodes:editContext.editor.document.getNodesInside(editContext.composer.selection!.base, editContext.composer.selection!.extent)));
+//    return ExecutionInstruction.haltExecution;
+//  }
+//}
 
 
 ExecutionInstruction anyCharacterOrDestructiveKeyToDeleteSelection({

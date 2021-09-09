@@ -813,7 +813,7 @@ final defaultKeyboardActions = <DocumentKeyboardAction>[
   backspaceToClearParagraphBlockType,
   cmdBToToggleBold,//record
   cmdIToToggleItalics,//record
-  cmdUToToggleUnderline,//record
+//  cmdUToToggleUnderline,//record
 
   shiftEnterToInsertNewlineInBlock,
   enterToInsertBlockNewline,

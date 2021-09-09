@@ -179,24 +179,20 @@ class _ExampleEditorState extends State<ExampleEditor> {
 
               SizedBox(height: 100,),
               Container(
-              height:40,
+                  height:40,
                   width: 600,
-                  child: StaticEditorToolbar(composer:_composer ,editor: _docEditor!,anchor: _selectionAnchor,)),
-
+                  child: StaticEditorToolbar(composer:_composer ,editor: _docEditor!,anchor: _selectionAnchor,)
+              ),
 
               Container(height:500,color:Colors.white,
                 child: UneditableSuperEditor.uneditable(
                   parentScrollable: (v){
                     setState((){
-
                       if(v){
                         scrollPhysicsForParent=ClampingScrollPhysics();
                       } else {
-
                         scrollPhysicsForParent=NeverScrollableScrollPhysics();
-
                       }
-
                     });
                   },
                   editor: _docEditor!,
