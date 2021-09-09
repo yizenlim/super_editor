@@ -19,6 +19,8 @@ class _InlineStyleExampleScreenState extends State<InlineStyleExampleScreen> {
   final List<TextRange> _boldRanges = [];
   final List<TextRange> _italicsRanges = [];
   final List<TextRange> _strikethroughRanges = [];
+  final List<TextRange> _underlineRanges = [];
+
   TextSpan _richText;
   String _plainText;
 
@@ -41,6 +43,9 @@ class _InlineStyleExampleScreenState extends State<InlineStyleExampleScreen> {
     }
     for (final range in _strikethroughRanges) {
       _text.addAttribution('strikethrough', range);
+    }
+    for (final range in _underlineRanges) {
+      _text.addAttribution('underline', range);
     }
 
     setState(() {
@@ -65,6 +70,12 @@ class _InlineStyleExampleScreenState extends State<InlineStyleExampleScreen> {
             case 'strikethrough':
               newStyle = newStyle.copyWith(
                 decoration: TextDecoration.lineThrough,
+              );
+              break;
+
+            case 'underline':
+              newStyle = newStyle.copyWith(
+                decoration: TextDecoration.underline,
               );
               break;
           }
@@ -97,6 +108,12 @@ class _InlineStyleExampleScreenState extends State<InlineStyleExampleScreen> {
           TableRow(
             children: [
               _buildRowTitle('Strikethrough'),
+              _buildCellSelector(_strikethroughRanges),
+            ],
+          ),
+          TableRow(
+            children: [
+              _buildRowTitle('Underline'),
               _buildCellSelector(_strikethroughRanges),
             ],
           ),

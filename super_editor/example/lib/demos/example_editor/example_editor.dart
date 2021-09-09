@@ -176,7 +176,11 @@ class _ExampleEditorState extends State<ExampleEditor> {
         Expanded(
           child: Container(
 
-            child: SuperEditor.standard(
+            child: SuperEditor.custom(
+//              textStyleBuilder: (v){
+//
+//                if(v)
+//              },
               editor: _docEditor!,
               composer: _composer,
               focusNode: _editorFocusNode,

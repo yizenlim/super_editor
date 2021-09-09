@@ -412,7 +412,7 @@ extension on AttributedText {
   /// order such that opening and closing styles match each other on
   /// the opening and closing ends of a span.
   static String _sortAndSerializeAttributions(Set<Attribution> attributions, AttributionVisitEvent event) {
-    const startOrder = [codeAttribution, boldAttribution, italicsAttribution, strikethroughAttribution];
+    const startOrder = [codeAttribution, boldAttribution, italicsAttribution, strikethroughAttribution ,underlineAttribution];
 
     final buffer = StringBuffer();
     final encodingOrder = event == AttributionVisitEvent.start ? startOrder : startOrder.reversed;
@@ -435,7 +435,9 @@ extension on AttributedText {
       return '*';
     } else if (attribution == strikethroughAttribution) {
       return '~';
-    } else {
+    } else if (attribution == underlineAttribution) {
+      return '__';
+    }else {
       return '';
     }
   }

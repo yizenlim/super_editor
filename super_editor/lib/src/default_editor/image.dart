@@ -156,6 +156,7 @@ Widget? imageBuilder(ComponentContext componentContext) {
 class AddImageNodeCommand implements EditorCommand {
   AddImageNodeCommand({
     this.imageUrl,
+    required this.documentEditor,
     required this.documentSelection,
     required this.nodeId,
     required this.splitPosition,
@@ -163,6 +164,7 @@ class AddImageNodeCommand implements EditorCommand {
     required this.newNodeId2,
     required this.replicateExistingMetdata,
   });
+  final DocumentEditor documentEditor ;
   final DocumentSelection documentSelection ;
   final String nodeId;
   final String newNodeId2;
@@ -176,10 +178,14 @@ class AddImageNodeCommand implements EditorCommand {
     _log.log('SplitParagraphCommand', 'Executing SplitParagraphCommand');
 
     final node = document.getNodeById(nodeId);
+
+    print('node if any ${node}');
     if (node is! ParagraphNode) {
       _log.log('SplitParagraphCommand', 'WARNING: Cannot split paragraph for node of type: $node.');
       return;
     }
+
+
 
     final text = node.text;
     final startText = text.copyText(0, splitPosition.offset);
@@ -212,12 +218,24 @@ class AddImageNodeCommand implements EditorCommand {
       newNode: newNode2,
     );
 
+    transaction.insertNodeAfter(
+      previousNode: newNode,
+      newNode: ParagraphNode(text:AttributedText(text: ''),id: 'AFTER${newNodeId2}PARA'),
+    );
+
+
+//    editContext.commonOps.insertCaretAtPosition( edit.documentSelection.base);
+
+//    documentSelection.collapseDownstream(document);
+//    commonOps.insertBlockLevelNewline();
+
 
 
     UndoRedo.addUndoRedo('undo', Edit(documentSelection:documentSelection ,action: 'AddImageNodeCommand',serializedString: '',nodes: [
       node,newNode,newNode2
     ] ));
     print('nodes ${document.nodes}');
+
 
     _log.log('SplitParagraphCommand', ' - inserted new node: ${newNode.id} after old one: ${node.id}');
   }

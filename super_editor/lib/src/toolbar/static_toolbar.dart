@@ -249,10 +249,19 @@ class _StaticEditorToolbarState extends State<StaticEditorToolbar> {
     );
   }
 
+  void _toggleUnderline() {
+    widget.editor!.executeCommand(
+      ToggleTextAttributionsCommand(
+        documentSelection: widget.composer!.selection!,
+        attributions: {underlineAttribution},
+      ),
+    );
+  }
+
   void _addImage() {
     widget.editor!.executeCommand(
       AddImageNodeCommand(
-
+          documentEditor: widget.editor!,
           nodeId: widget.composer!.selection!.extent.nodeId,splitPosition: widget.composer!.selection!.extent.nodePosition as TextPosition,
           newNodeId: DocumentEditor.createNodeId(),newNodeId2:DocumentEditor.createNodeId(),replicateExistingMetdata: false ,documentSelection: widget.composer!.selection!
       ),
@@ -260,15 +269,15 @@ class _StaticEditorToolbarState extends State<StaticEditorToolbar> {
   }
 
 
-  static void addImageNode(DocumentComposer composer ,DocumentEditor editor ,String nodeId,TextPosition splitPosition  , String url){
-    editor.executeCommand(
-      AddImageNodeCommand(
-          nodeId: nodeId,splitPosition: splitPosition,imageUrl: url,
-          newNodeId: DocumentEditor.createNodeId() ,newNodeId2:DocumentEditor.createNodeId()  ,replicateExistingMetdata: false,documentSelection: composer.selection!
-      ),
-    );
-
-  }
+//  static void addImageNode(DocumentComposer composer ,DocumentEditor editor ,String nodeId,TextPosition splitPosition  , String url){
+//    editor.executeCommand(
+//      AddImageNodeCommand(
+//          nodeId: nodeId,splitPosition: splitPosition,imageUrl: url,
+//          newNodeId: DocumentEditor.createNodeId() ,newNodeId2:DocumentEditor.createNodeId()  ,replicateExistingMetdata: false,documentSelection: composer.selection!
+//      ),
+//    );
+//
+//  }
 
 
 

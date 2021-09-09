@@ -10,6 +10,8 @@ class _AttributedTextDemoState extends State<AttributedTextDemo> {
   final List<TextRange> _boldRanges = [];
   final List<TextRange> _italicsRanges = [];
   final List<TextRange> _strikethroughRanges = [];
+
+  final List<TextRange> _underlineRanges = [];
   TextSpan? _richText;
   late String _plainText;
 
@@ -34,6 +36,10 @@ class _AttributedTextDemoState extends State<AttributedTextDemo> {
       _text.addAttribution(strikethroughAttribution, range);
     }
 
+    for (final range in _underlineRanges) {
+      _text.addAttribution(underlineAttribution, range);
+    }
+
     setState(() {
       _richText = _text.computeTextSpan((Set<Attribution> attributions) {
         TextStyle newStyle = const TextStyle(
@@ -53,7 +59,12 @@ class _AttributedTextDemoState extends State<AttributedTextDemo> {
             newStyle = newStyle.copyWith(
               decoration: TextDecoration.lineThrough,
             );
+          } else if (attribution == underlineAttribution) {
+            newStyle = newStyle.copyWith(
+              decoration: TextDecoration.underline,
+            );
           }
+
         }
         return newStyle;
       });
@@ -123,6 +134,12 @@ Try it yourself by adding and removing attributions to characters in a string...
                 children: [
                   _buildRowTitle('Strikethrough'),
                   _buildCellSelector(_strikethroughRanges),
+                ],
+              ),
+              TableRow(
+                children: [
+                  _buildRowTitle('Underline'),
+                  _buildCellSelector(_underlineRanges),
                 ],
               ),
               const TableRow(

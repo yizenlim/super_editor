@@ -358,25 +358,33 @@ TextStyle defaultStyleBuilder(Set<Attribution> attributions) {
         fontWeight: FontWeight.bold,
         height: 1.0,
       );
-    } else if (attribution == header2Attribution) {
+    }
+
+    else if (attribution == header2Attribution) {
       newStyle = newStyle.copyWith(
         fontSize: 18,
         fontWeight: FontWeight.bold,
         color: const Color(0xFF888888),
         height: 1.0,
       );
-    } else if (attribution == blockquoteAttribution) {
+    }
+
+    else if (attribution == blockquoteAttribution) {
       newStyle = newStyle.copyWith(
         fontSize: 20,
         fontWeight: FontWeight.bold,
         height: 1.4,
         color: Colors.grey,
       );
-    } else if (attribution == boldAttribution) {
+    }
+
+    else if (attribution == boldAttribution) {
       newStyle = newStyle.copyWith(
         fontWeight: FontWeight.bold,
       );
-    } else if (attribution == italicsAttribution) {
+    }
+
+    else if (attribution == italicsAttribution) {
       newStyle = newStyle.copyWith(
         fontStyle: FontStyle.italic,
       );
@@ -384,7 +392,11 @@ TextStyle defaultStyleBuilder(Set<Attribution> attributions) {
       newStyle = newStyle.copyWith(
         decoration: TextDecoration.lineThrough,
       );
-    } else if (attribution is LinkAttribution) {
+    }  else if (attribution == underlineAttribution) {
+      newStyle = newStyle.copyWith(
+        decoration: TextDecoration.underline,
+      );
+    }else if (attribution is LinkAttribution) {
       newStyle = newStyle.copyWith(
         color: Colors.lightBlue,
         decoration: TextDecoration.underline,
@@ -426,6 +438,8 @@ final defaultKeyboardActions = <DocumentKeyboardAction>[
   backspaceToClearParagraphBlockType,
   cmdBToToggleBold,//record
   cmdIToToggleItalics,//record
+  cmdUToToggleUnderline,//record
+
   shiftEnterToInsertNewlineInBlock,
   enterToInsertBlockNewline,
   backspaceToRemoveUpstreamContent,
