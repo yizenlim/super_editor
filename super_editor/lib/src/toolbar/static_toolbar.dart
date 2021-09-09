@@ -555,6 +555,12 @@ class _StaticEditorToolbarState extends State<StaticEditorToolbar> {
                 icon: const Icon(Icons.strikethrough_s),
               ),
             ),
+            Center(
+              child: IconButton(
+                onPressed: _toggleUnderline,splashRadius: 15,
+                icon: const Icon(Icons.format_underline),
+              ),
+            ),
 
             Center(
               child: IconButton(

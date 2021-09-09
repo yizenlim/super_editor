@@ -101,10 +101,12 @@ Document createEmptyDocument() {
       ParagraphNode(
       id: DocumentEditor.createNodeId(),
       text: AttributedText(
-        text: 'Replace this text, Start typing', spans: AttributedSpans(attributions: [const SpanMarker(attribution: boldAttribution, offset: 5, markerType: SpanMarkerType.end)])
+        text: 'Replace this text, Start typing',
+          spans: AttributedSpans(attributions:
+          [const SpanMarker(attribution: boldAttribution, offset: 5, markerType: SpanMarkerType.end)])
       ),
-
     ),
+
     ],
   );
 }
