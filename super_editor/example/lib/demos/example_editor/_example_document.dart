@@ -101,7 +101,55 @@ Document createEmptyDocument() {
       ParagraphNode(
       id: DocumentEditor.createNodeId(),
       text: AttributedText(
-        text: 'Replace this text, Start typing',
+        text:
+        '''fasdf asdf asf ae
+wpof j;aiej 
+aewfo 
+aweofj 
+waeofj 
+weaof 
+waeofj 
+ewafoj w
+eofj wa
+efjo 
+awpjf 
+pae jowahepfohaweofj o;ejif;oaiejf ;ovieaj;oa ief;oieaj faw
+ef j
+eojaw
+peij 
+of j;aiej 
+aewfo 
+aweofj 
+waeofj 
+weaof 
+waeofj 
+ewafoj w
+eofj wa
+efjo 
+awpjf 
+pae jowahepfohaweofj o;ejif;oaiejf ;ovieaj;oa ief;oieaj faw
+ef j
+eojaw
+peij 
+awepij
+ pawefj
+pwaeifj
+p aeiofj
+ aweijf
+awepij
+ pawefj
+pwaeifj
+p aeiofj
+ aweijf
+aw eif
+pawioj 
+pijf
+awpijf 
+awepf
+ apwej
+pweijf 
+awpei 
+awp''',
           spans: AttributedSpans(attributions:
           [const SpanMarker(attribution: boldAttribution, offset: 5, markerType: SpanMarkerType.end)])
       ),

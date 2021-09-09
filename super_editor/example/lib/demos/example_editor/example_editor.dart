@@ -150,48 +150,105 @@ class _ExampleEditorState extends State<ExampleEditor> {
     // editor. I'm not sure why.
     _editorFocusNode!.requestFocus();
   }
-
+  late ScrollPhysics scrollPhysicsForParent= ClampingScrollPhysics();
   @override
   Widget build(BuildContext context) {
     print('nodes ${_doc.nodes}');
-    return Column(mainAxisSize: MainAxisSize.min,
-      children: [
-
-       /* Container(child:
-        Row(children: [
-          IconButton(onPressed: (){},
-          icon: const Icon(Icons.format_bold )),
 
 
-          IconButton(onPressed: (){},
-              icon: const Icon(Icons.format_bold ))
-        ],)
-        ),*/
+    return MouseRegion(
 
-        SizedBox(height: 100,),
-        Container(
-        height:40,
-            width: 600,
-            child: StaticEditorToolbar(composer:_composer ,editor: _docEditor!,anchor: _selectionAnchor,)),
-        Expanded(
-          child: Container(
+      child: Container(
+        color : Colors.blue[300],
+        child: SingleChildScrollView(
+          physics: scrollPhysicsForParent,
+          child: Column(mainAxisSize: MainAxisSize.min,
 
-            child: SuperEditor.custom(
-//              textStyleBuilder: (v){
+            children: [
+
+             /* Container(child:
+              Row(children: [
+                IconButton(onPressed: (){},
+                icon: const Icon(Icons.format_bold )),
+
+
+                IconButton(onPressed: (){},
+                    icon: const Icon(Icons.format_bold ))
+              ],)
+              ),*/
+
+              SizedBox(height: 100,),
+              Container(
+              height:40,
+                  width: 600,
+                  child: StaticEditorToolbar(composer:_composer ,editor: _docEditor!,anchor: _selectionAnchor,)),
+
+
+              Container(height:500,color:Colors.white,
+                child: UneditableSuperEditor.uneditable(
+                  parentScrollable: (v){
+                    setState((){
+
+                      if(v){
+                        scrollPhysicsForParent=ClampingScrollPhysics();
+                      } else {
+
+                        scrollPhysicsForParent=NeverScrollableScrollPhysics();
+
+                      }
+
+                    });
+                  },
+                  editor: _docEditor!,
+                  composer: _composer,
+                  focusNode: _editorFocusNode,
+                  scrollController: _scrollController,
+                  documentLayoutKey: _docLayoutKey,
+                  maxWidth: 600, // arbitrary choice for maximum width
+                  padding: const EdgeInsets.symmetric(vertical: 56, horizontal: 24),),
+              ),
+//        Expanded(
+//          child: Container(
 //
-//                if(v)
-//              },
-              editor: _docEditor!,
-              composer: _composer,
-              focusNode: _editorFocusNode,
-              scrollController: _scrollController,
-              documentLayoutKey: _docLayoutKey,
-              maxWidth: 600, // arbitrary choice for maximum width
-              padding: const EdgeInsets.symmetric(vertical: 56, horizontal: 24),
-            ),
+//            child: SuperEditor.custom(
+////              textStyleBuilder: (v){
+////
+////                if(v)
+////              },
+//              editor: _docEditor!,
+//              composer: _composer,
+//              focusNode: _editorFocusNode,
+//              scrollController: _scrollController,
+//              documentLayoutKey: _docLayoutKey,
+//              maxWidth: 600, // arbitrary choice for maximum width
+//              padding: const EdgeInsets.symmetric(vertical: 56, horizontal: 24),
+//            ),
+//          ),
+//        ),
+
+
+            Text('''
+            This is flutter text
+                  This is flutter text
+            This is flutter text
+            This is flutter text
+            This is flutter text
+            This is flutter text
+            This is flutter text
+            This is flutter text
+            This is flutter text
+            This is flutter text
+            This is flutter text
+            This is flutter text
+            This is flutter text
+            This is flutter text
+            This is flutter text
+            This is flutter text
+''')
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

@@ -52,6 +52,9 @@ class CommonEditorOperations {
   @protected
   final DocumentLayoutResolver documentLayoutResolver;
 
+
+
+
   /// Clears the [DocumentComposer]'s current selection and sets
   /// the selection to the given collapsed [documentPosition].
   ///
@@ -1239,6 +1242,9 @@ class CommonEditorOperations {
     String character, {
     bool ignoreComposerAttributions = false,
   }) {
+
+
+
     if (composer.selection == null) {
       return false;
     }

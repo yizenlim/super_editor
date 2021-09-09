@@ -130,6 +130,41 @@ class SuperEditor extends StatefulWidget {
     );
   }
 
+
+  factory SuperEditor.uneditable({
+    Key? key,
+    required DocumentEditor editor,
+    DocumentComposer? composer,
+    AttributionStyleBuilder? textStyleBuilder,
+    SelectionStyle? selectionStyle,
+    List<DocumentKeyboardAction>? keyboardActions,
+    List<ComponentBuilder>? componentBuilders,
+    ScrollController? scrollController,
+    FocusNode? focusNode,
+    double maxWidth = 600,
+    double componentVerticalSpacing = 16,
+    EdgeInsetsGeometry padding = EdgeInsets.zero,
+    GlobalKey? documentLayoutKey,
+    bool showDebugPaint = false,
+  }) {
+    return SuperEditor._uneditable(
+      key: key,
+      editor: editor,
+      composer: composer,
+      componentBuilders: componentBuilders ?? defaultComponentBuilders,
+      textStyleBuilder: textStyleBuilder ?? defaultStyleBuilder,
+      selectionStyle: selectionStyle ?? defaultSelectionStyle,
+      keyboardActions: keyboardActions ?? defaultKeyboardActions,
+      scrollController: scrollController,
+      focusNode: focusNode,
+      maxWidth: maxWidth,
+      componentVerticalSpacing: componentVerticalSpacing,
+      padding: padding,
+      documentLayoutKey: documentLayoutKey,
+      showDebugPaint: showDebugPaint,
+    );
+  }
+
   const SuperEditor._({
     Key? key,
     required this.editor,
@@ -147,8 +182,29 @@ class SuperEditor extends StatefulWidget {
     this.showDebugPaint = false,
   }) : super(key: key);
 
+
+  const SuperEditor._uneditable({
+    Key? key,
+    required this.editor,
+    this.composer,
+    required this.componentBuilders,
+    required this.textStyleBuilder,
+    required this.selectionStyle,
+    required this.keyboardActions,
+    this.scrollController,
+    this.focusNode,
+    this.maxWidth = 600,
+    this.componentVerticalSpacing = 16,
+    this.padding = EdgeInsets.zero,
+    this.documentLayoutKey,
+    this.showDebugPaint = false,
+
+  }) : super(key: key);
+
   /// Contains a [Document] and alters that document as desired.
   final DocumentEditor editor;
+
+
 
   final DocumentComposer? composer;
 
@@ -336,6 +392,321 @@ class _SuperEditorState extends State<SuperEditor> {
     );
   }
 }
+
+
+
+
+
+class UneditableSuperEditor extends StatefulWidget {
+
+
+
+  factory UneditableSuperEditor.uneditable({
+    Key? key,
+    required DocumentEditor editor,
+    required Function(bool) parentScrollable,
+    DocumentComposer? composer,
+    AttributionStyleBuilder? textStyleBuilder,
+    SelectionStyle? selectionStyle,
+    List<DocumentKeyboardAction>? keyboardActions,
+    List<ComponentBuilder>? componentBuilders,
+    ScrollController? scrollController,
+    FocusNode? focusNode,
+    double maxWidth = 600,
+    double componentVerticalSpacing = 16,
+    EdgeInsetsGeometry padding = EdgeInsets.zero,
+    GlobalKey? documentLayoutKey,
+    bool showDebugPaint = false,
+
+  }) {
+    return UneditableSuperEditor._uneditable(
+      key: key,
+      editor: editor,
+      composer: composer,
+      parentScrollable : parentScrollable,
+
+      componentBuilders: componentBuilders ?? defaultComponentBuilders,
+      textStyleBuilder: textStyleBuilder ?? defaultStyleBuilder,
+      selectionStyle: selectionStyle ?? defaultSelectionStyle,
+      keyboardActions: [doNothingWhenThereIsNoSelection],
+      scrollController: scrollController,
+      focusNode: focusNode,
+      maxWidth: maxWidth,
+      componentVerticalSpacing: componentVerticalSpacing,
+      padding: padding,
+      documentLayoutKey: documentLayoutKey,
+      showDebugPaint: showDebugPaint,
+    );
+  }
+
+
+  const UneditableSuperEditor._uneditable({
+    Key? key,
+    required this.editor,
+    this.composer,
+    required this.componentBuilders,
+    required this.textStyleBuilder,
+    required this.selectionStyle,
+    required this.keyboardActions,
+    required this.parentScrollable,
+    this.scrollController,
+    this.focusNode,
+    this.maxWidth = 600,
+    this.componentVerticalSpacing = 16,
+    this.padding = EdgeInsets.zero,
+    this.documentLayoutKey,
+    this.showDebugPaint = false,
+
+  }) : super(key: key);
+
+  /// Contains a [Document] and alters that document as desired.
+  final DocumentEditor editor;
+
+
+  final Function(bool) parentScrollable;
+
+  final DocumentComposer? composer;
+
+  /// Priority list of widget factories that creates instances of
+  /// each visual component displayed in the document layout, e.g.,
+  /// paragraph component, image component,
+  /// horizontal rule component, etc.
+  final List<ComponentBuilder> componentBuilders;
+
+  /// Factory that creates [TextStyle]s based on given
+  /// attributions. An attribution can be anything. It is up
+  /// to the [textStyleBuilder] to interpret attributions
+  /// as desired to produce corresponding styles.
+  final AttributionStyleBuilder textStyleBuilder;
+
+  /// Styles to be applied to selected text.
+  final SelectionStyle selectionStyle;
+
+  /// All actions that this editor takes in response to key
+  /// events, e.g., text entry, newlines, character deletion,
+  /// copy, paste, etc.
+  final List<DocumentKeyboardAction> keyboardActions;
+
+  final ScrollController? scrollController;
+
+  final GlobalKey? documentLayoutKey;
+
+  final FocusNode? focusNode;
+
+  final double maxWidth;
+
+  final double componentVerticalSpacing;
+
+  final EdgeInsetsGeometry padding;
+
+  /// Paints some extra visual ornamentation to help with
+  /// debugging, when true.
+  final showDebugPaint;
+
+  @override
+  _UneditableSuperEditorState createState() => _UneditableSuperEditorState();
+}
+class _UneditableSuperEditorState extends State<UneditableSuperEditor> {
+  // GlobalKey used to access the [DocumentLayoutState] to figure
+  // out where in the document the user taps or drags.
+  late GlobalKey _docLayoutKey;
+
+  late FocusNode _focusNode;
+  late DocumentComposer _composer;
+
+  DocumentPosition? _previousSelectionExtent;
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    _composer = widget.composer ?? DocumentComposer();
+    _composer.addListener(_updateComposerPreferencesAtSelection);
+
+    _focusNode = widget.focusNode ?? FocusNode();
+
+    _docLayoutKey = widget.documentLayoutKey ?? GlobalKey();
+  }
+
+//  @override
+//  void didUpdateWidget(SuperEditor oldWidget) {
+//    super.didUpdateWidget(oldWidget);
+//    if (widget.composer != oldWidget.composer) {
+//      _composer.removeListener(_updateComposerPreferencesAtSelection);
+//
+//      _composer = widget.composer ?? DocumentComposer();
+//      _composer.addListener(_updateComposerPreferencesAtSelection);
+//    }
+//    if (widget.editor != oldWidget.editor) {
+//      // The content displayed in this Editor was switched
+//      // out. Remove any content selection from the previous
+//      // document.
+//      _composer.selection = null;
+//    }
+//    if (widget.focusNode != oldWidget.focusNode) {
+//      _focusNode = widget.focusNode ?? FocusNode();
+//    }
+//    if (widget.documentLayoutKey != oldWidget.documentLayoutKey) {
+//      _docLayoutKey = widget.documentLayoutKey ?? GlobalKey();
+//    }
+//  }
+
+  @override
+  void dispose() {
+    if (widget.composer == null) {
+      _composer.dispose();
+    }
+
+    if (widget.focusNode == null) {
+      // We are using our own private FocusNode. Dispose it.
+      _focusNode.dispose();
+    }
+
+    super.dispose();
+  }
+
+  void _updateComposerPreferencesAtSelection() {
+    if (_composer.selection?.extent == _previousSelectionExtent) {
+      return;
+    }
+    _previousSelectionExtent = _composer.selection?.extent;
+
+    _composer.preferences.clearStyles();
+
+    if (_composer.selection == null || !_composer.selection!.isCollapsed) {
+      return;
+    }
+
+    final node = widget.editor.document.getNodeById(_composer.selection!.extent.nodeId);
+    if (node is! TextNode) {
+      return;
+    }
+
+    final textPosition = _composer.selection!.extent.nodePosition as TextPosition;
+
+    if (textPosition.offset == 0) {
+      if (node.text.text.isEmpty) {
+        return;
+      }
+
+      // Inserted text at the very beginning of a text blob assumes the
+      // attributions immediately following it.
+      final allStyles = node.text.getAllAttributionsAt(textPosition.offset + 1);
+      _composer.preferences.addStyles(allStyles);
+    } else {
+      // Inserted text assumes the attributions immediately preceding it.
+      final allStyles = node.text.getAllAttributionsAt(textPosition.offset - 1);
+      _composer.preferences.addStyles(allStyles);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    return UneditableDocumentInteractor(
+      focusNode: _focusNode,
+      scrollController: widget.scrollController,
+      parentScrollable: (bool v){
+
+        widget.parentScrollable(v) ;
+      },
+
+      editContext: EditContext(
+        editor: widget.editor,
+        composer: _composer,
+        getDocumentLayout: () => _docLayoutKey.currentState as DocumentLayout,
+        commonOps: CommonEditorOperations(
+          editor: widget.editor,
+          composer: _composer,
+          documentLayoutResolver: () => _docLayoutKey.currentState as DocumentLayout,
+        ),
+      ),
+      keyboardActions: widget.keyboardActions,
+      showDebugPaint: widget.showDebugPaint,
+      document: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: widget.maxWidth,
+        ),
+        child: Padding(
+          padding: widget.padding,
+          child: MultiListenableBuilder(
+            listenables: {
+              _focusNode,
+              _composer,
+              widget.editor.document,
+            },
+            builder: (context) {
+              return DefaultDocumentLayout(
+                key: _docLayoutKey,
+                document: widget.editor.document,
+                documentSelection: _composer.selection,
+                componentBuilders: widget.componentBuilders,
+                showCaret: _focusNode.hasFocus,
+                componentVerticalSpacing: widget.componentVerticalSpacing,
+                extensions: {
+                  textStylesExtensionKey: widget.textStyleBuilder,
+                  selectionStylesExtensionKey: widget.selectionStyle,
+                },
+                showDebugPaint: widget.showDebugPaint,
+              );
+            },
+          ),
+        ),
+      ),
+    );
+    return DocumentInteractor(
+      focusNode: _focusNode,
+      scrollController: widget.scrollController,
+      editContext: EditContext(
+        editor: widget.editor,
+        composer: _composer,
+        getDocumentLayout: () => _docLayoutKey.currentState as DocumentLayout,
+        commonOps: CommonEditorOperations(
+          editor: widget.editor,
+          composer: _composer,
+          documentLayoutResolver: () => _docLayoutKey.currentState as DocumentLayout,
+        ),
+      ),
+      keyboardActions: widget.keyboardActions,
+      showDebugPaint: widget.showDebugPaint,
+      document: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: widget.maxWidth,
+        ),
+        child: Padding(
+          padding: widget.padding,
+          child: MultiListenableBuilder(
+            listenables: {
+              _focusNode,
+              _composer,
+              widget.editor.document,
+            },
+            builder: (context) {
+              return DefaultDocumentLayout(
+                key: _docLayoutKey,
+                document: widget.editor.document,
+                documentSelection: _composer.selection,
+                componentBuilders: widget.componentBuilders,
+                showCaret: _focusNode.hasFocus,
+                componentVerticalSpacing: widget.componentVerticalSpacing,
+                extensions: {
+                  textStylesExtensionKey: widget.textStyleBuilder,
+                  selectionStylesExtensionKey: widget.selectionStyle,
+                },
+                showDebugPaint: widget.showDebugPaint,
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
 
 /// Default visual styles related to content selection.
 final defaultSelectionStyle = const SelectionStyle(

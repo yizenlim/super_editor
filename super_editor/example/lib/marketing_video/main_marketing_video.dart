@@ -349,6 +349,8 @@ class DocumentEditingRobot {
   }
 
   void typeText(String text) {
+
+
     for (final character in text.characters) {
       _actionQueue.add(
         _randomPauseBefore(
