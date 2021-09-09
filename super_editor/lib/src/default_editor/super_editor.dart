@@ -424,11 +424,15 @@ class UneditableSuperEditor extends StatefulWidget {
       editor: editor,
       composer: composer,
       parentScrollable : parentScrollable,
-
       componentBuilders: componentBuilders ?? defaultComponentBuilders,
       textStyleBuilder: textStyleBuilder ?? defaultStyleBuilder,
       selectionStyle: selectionStyle ?? defaultSelectionStyle,
-      keyboardActions: [doNothingWhenThereIsNoSelection],
+      keyboardActions: [
+        doNothingWhenThereIsNoSelection,
+        copyWhenCmdVIsPressed,
+        selectAllWhenCmdAIsPressed,
+        moveUpDownLeftAndRightWithArrowKeys,
+      ],
       scrollController: scrollController,
       focusNode: focusNode,
       maxWidth: maxWidth,
