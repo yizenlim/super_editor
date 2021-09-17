@@ -233,7 +233,7 @@ class _ExampleEditorState extends State<ExampleEditor> {
             }
           },
           child: Container(
-            color:Colors.yellowAccent,
+//            color:Colors.yellowAccent,
             child: UneditableSuperEditor.uneditable(
 //              textStyleBuilder: (v){
 //
