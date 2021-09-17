@@ -1513,7 +1513,6 @@ class _UneditableDocumentInteractorState extends State<UneditableDocumentInterac
 
 
     return Container(
-      color: Colors.yellow,
       child: MouseRegion(
         onEnter: (V){
           widget.parentScrollable(false);
