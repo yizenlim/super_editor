@@ -401,6 +401,7 @@ class UneditableSuperEditor extends StatefulWidget {
 
 
 
+
   factory UneditableSuperEditor.uneditable({
     Key? key,
     required DocumentEditor editor,
@@ -417,6 +418,8 @@ class UneditableSuperEditor extends StatefulWidget {
     EdgeInsetsGeometry padding = EdgeInsets.zero,
     GlobalKey? documentLayoutKey,
     bool showDebugPaint = false,
+    bool highlightable = false,
+    bool shrinkWrap = true,
 
   }) {
     return UneditableSuperEditor._uneditable(
@@ -440,8 +443,12 @@ class UneditableSuperEditor extends StatefulWidget {
       padding: padding,
       documentLayoutKey: documentLayoutKey,
       showDebugPaint: showDebugPaint,
+      shrinkWrap: shrinkWrap,
+      highlightable: highlightable,
     );
   }
+
+
 
 
   const UneditableSuperEditor._uneditable({
@@ -460,8 +467,12 @@ class UneditableSuperEditor extends StatefulWidget {
     this.padding = EdgeInsets.zero,
     this.documentLayoutKey,
     this.showDebugPaint = false,
+    this.highlightable = false,
+    this.shrinkWrap =true
 
   }) : super(key: key);
+
+
 
   /// Contains a [Document] and alters that document as desired.
   final DocumentEditor editor;
@@ -502,6 +513,8 @@ class UneditableSuperEditor extends StatefulWidget {
   final double componentVerticalSpacing;
 
   final EdgeInsetsGeometry padding;
+
+  final bool highlightable, shrinkWrap;
 
   /// Paints some extra visual ornamentation to help with
   /// debugging, when true.
@@ -610,6 +623,8 @@ class _UneditableSuperEditorState extends State<UneditableSuperEditor> {
 
     return UneditableDocumentInteractor(
       focusNode: _focusNode,
+      highlightable: widget.highlightable,
+      shrinkWrap: widget.shrinkWrap,
       scrollController: widget.scrollController,
       parentScrollable: (bool v){
 

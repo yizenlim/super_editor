@@ -184,43 +184,78 @@ class _ExampleEditorState extends State<ExampleEditor> {
                   child: StaticEditorToolbar(composer:_composer ,editor: _docEditor!,anchor: _selectionAnchor,)
               ),
 
-              Container(height:500,color:Colors.white,
-                child: UneditableSuperEditor.uneditable(
-                  parentScrollable: (v){
-                    setState((){
-                      if(v){
-                        scrollPhysicsForParent=ClampingScrollPhysics();
-                      } else {
-                        scrollPhysicsForParent=NeverScrollableScrollPhysics();
-                      }
-                    });
-                  },
-                  editor: _docEditor!,
-                  composer: _composer,
-                  focusNode: _editorFocusNode,
-                  scrollController: _scrollController,
-                  documentLayoutKey: _docLayoutKey,
-                  maxWidth: 600, // arbitrary choice for maximum width
-                  padding: const EdgeInsets.symmetric(vertical: 56, horizontal: 24),),
-              ),
-//        Expanded(
-//          child: Container(
+//              Container(height:500,color:Colors.white,
+//                child: UneditableSuperEditor.uneditable(
+//                  parentScrollable: (v){
+//                    setState((){
+//                      if(v){
+//                        scrollPhysicsForParent=ClampingScrollPhysics();
+//                      } else {
+//                        scrollPhysicsForParent=NeverScrollableScrollPhysics();
+//                      }
+//                    });
+//                  },
+//                  editor: _docEditor!,
+//                  composer: _composer,
+//                  focusNode: _editorFocusNode,
+//                  scrollController: _scrollController,
+//                  documentLayoutKey: _docLayoutKey,
+//                  maxWidth: 600, // arbitrary choice for maximum width
+//                  padding: const EdgeInsets.symmetric(vertical: 56, horizontal: 24),),
+//              ),
+        GestureDetector(
+          onTap:(){
+            print('no doc position ! ');
+
+            DocumentLayout docLayout = _docLayoutKey.currentState as DocumentLayout;
+            if(_docEditor!.document.nodes.isNotEmpty) {
+
+              if( _docEditor!.document.nodes.length ==1 &&  _docEditor!.document.nodes.last is ParagraphNode){
+                print('is Paranode ');
+                ParagraphNode paraNode = _docEditor!.document.nodes.last as ParagraphNode;
+
+                if(paraNode.text.text.isEmpty) {
+                  print('paranode is empty ');
+
+                  DocumentComponent lastComponent = docLayout.getComponentByNodeId(
+                      _docEditor!.document.nodes.last.id)!;
+                  print('${_docEditor!.document.nodes.last}');
+                  DocumentPosition position = docLayout.getDocumentPositionNearestToOffset(
+                      lastComponent.getOffsetForPosition(_docEditor!.document.nodes.last.endPosition))!;
+                  _composer!.selection = DocumentSelection.collapsed(
+                    position: position,
+                  )/*.collapseDownstream(widget.editContext.editor.document)*/;
+                  print('Selectionz');
+
+                  print(_composer!.selection);
+                }
+              }
+            }
+          },
+          child: Container(
+            color:Colors.yellowAccent,
+            child: UneditableSuperEditor.uneditable(
+//              textStyleBuilder: (v){
 //
-//            child: SuperEditor.custom(
-////              textStyleBuilder: (v){
-////
-////                if(v)
-////              },
-//              editor: _docEditor!,
-//              composer: _composer,
-//              focusNode: _editorFocusNode,
-//              scrollController: _scrollController,
-//              documentLayoutKey: _docLayoutKey,
-//              maxWidth: 600, // arbitrary choice for maximum width
-//              padding: const EdgeInsets.symmetric(vertical: 56, horizontal: 24),
-//            ),
-//          ),
-//        ),
+//                if(v)
+//              },
+
+
+              editor: _docEditor!,
+              composer: _composer,
+              focusNode: _editorFocusNode,
+              scrollController: _scrollController,
+              documentLayoutKey: _docLayoutKey,
+              maxWidth: 1000, // arbitrary choice for maximum width
+              padding: const EdgeInsets.symmetric(vertical: 56, horizontal: 24), parentScrollable: (bool v) {
+                if(v ){
+                  scrollPhysicsForParent = NeverScrollableScrollPhysics();
+                } else scrollPhysicsForParent= ClampingScrollPhysics();
+
+            },
+            ),
+          ),
+        ),
 
 
             Text('''

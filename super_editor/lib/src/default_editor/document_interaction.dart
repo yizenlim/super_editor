@@ -10,6 +10,7 @@ import 'package:super_editor/src/core/document.dart';
 import 'package:super_editor/src/core/document_layout.dart';
 import 'package:super_editor/src/core/document_selection.dart';
 import 'package:super_editor/src/core/edit_context.dart';
+import 'package:super_editor/src/default_editor/paragraph.dart';
 import 'package:super_editor/src/infrastructure/_logging.dart';
 import 'package:super_editor/src/infrastructure/multi_tap_gesture.dart';
 
@@ -223,6 +224,9 @@ class _DocumentInteractorState extends State<DocumentInteractor> with SingleTick
   }
 
   void _onTapDown(TapDownDetails details) {
+
+    print('TAPPY TAP TAP ! ');
+
     _log.log('_onTapDown', 'EditableDocument: onTapDown()');
     _clearSelection();
     _selectionType = SelectionType.position;
@@ -233,9 +237,38 @@ class _DocumentInteractorState extends State<DocumentInteractor> with SingleTick
     _log.log('_onTapDown', ' - tapped document position: $docPosition');
 
     if (docPosition != null) {
+      print('has doc position ! ');
+
       // Place the document selection at the location where the
       // user tapped.
       _selectPosition(docPosition);
+    } else {
+
+    /*  print('no doc position ! ');
+      if(widget.editContext.editor.document.nodes.isNotEmpty) {
+
+        if( widget.editContext.editor.document.nodes.length ==1 &&  widget.editContext.editor.document.nodes.last is ParagraphNode){
+          print('is Paranode ');
+          ParagraphNode paraNode = widget.editContext.editor.document.nodes.last as ParagraphNode;
+
+          if(paraNode.text.text.isEmpty) {
+            print('paranode is empty ');
+
+            DocumentComponent lastComponent = _layout.getComponentByNodeId(
+                widget.editContext.editor.document.nodes.last.id)!;
+            print('${widget.editContext.editor.document.nodes.last}');
+            DocumentPosition position = _layout.getDocumentPositionNearestToOffset(
+                lastComponent.getOffsetForPosition(widget
+                    .editContext.editor.document.nodes.last.endPosition))!;
+            widget.editContext.composer.selection = DocumentSelection.collapsed(
+              position: position,
+            )*//*.collapseDownstream(widget.editContext.editor.document)*//*;
+            print('Selectionz');
+
+            print(widget.editContext.composer.selection);
+          }
+        }
+      }*/
     }
 
     _focusNode.requestFocus();
@@ -795,6 +828,7 @@ class DragRectanglePainter extends CustomPainter {
 ///  - automatically scrolls up or down when the user drags near
 ///    a boundary
 class UneditableDocumentInteractor extends StatefulWidget {
+
    UneditableDocumentInteractor({
     Key? key,
     required this.editContext,
@@ -804,6 +838,8 @@ class UneditableDocumentInteractor extends StatefulWidget {
     this.focusNode,
     required this.document,
     this.showDebugPaint = false,
+     this.highlightable = false,
+     this.shrinkWrap = true,
   }) : super(key: key);
 
   /// Service locator for other editing components.
@@ -813,6 +849,10 @@ class UneditableDocumentInteractor extends StatefulWidget {
   final List<DocumentKeyboardAction> keyboardActions;
 
   Function(bool) parentScrollable ;
+
+  bool highlightable ;
+  bool shrinkWrap ;
+
 
   /// Controls the vertical scrolling of the given [document].
   ///
@@ -1145,9 +1185,12 @@ class _UneditableDocumentInteractorState extends State<UneditableDocumentInterac
 
   void _selectPosition(DocumentPosition position) {
     _log.log('_selectPosition', 'Setting document selection to $position');
-    widget.editContext.composer.selection = DocumentSelection.collapsed(
-      position: position,
-    );
+
+    if(widget.highlightable) {
+      widget.editContext.composer.selection = DocumentSelection.collapsed(
+        position: position,
+      );
+    }
   }
 
   void _updateDragSelection() {
@@ -1157,12 +1200,15 @@ class _UneditableDocumentInteractorState extends State<UneditableDocumentInterac
 
     _dragEndInDoc = _getDocOffset(_dragEndInViewport!);
 
-    _selectRegion(
-      documentLayout: _layout,
-      baseOffset: _dragStartInDoc!,
-      extentOffset: _dragEndInDoc!,
-      selectionType: _selectionType,
-    );
+
+    if(widget.highlightable) {
+      _selectRegion(
+        documentLayout: _layout,
+        baseOffset: _dragStartInDoc!,
+        extentOffset: _dragEndInDoc!,
+        selectionType: _selectionType,
+      );
+    }
   }
 
   void _selectRegion({
@@ -1376,24 +1422,56 @@ class _UneditableDocumentInteractorState extends State<UneditableDocumentInterac
 
   @override
   Widget build(BuildContext context) {
-    return _buildSuppressUnhandledKeySound(
-      child: _buildCursorStyle(
-        child: _buildKeyboardAndMouseInput(
-          child: SizedBox.expand(
-            child: Stack(
+
+    if(widget.shrinkWrap) {
+      return _buildSuppressUnhandledKeySound(
+        child: _buildCursorStyle(
+          child: _buildKeyboardAndMouseInput(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                _buildDocumentContainer(
-                  document: widget.document,
-                ),
-                Positioned.fill(
-                  child: widget.showDebugPaint ? _buildDragSelection() : SizedBox(),
+                Stack(
+                  children: [
+                    _buildDocumentContainer(
+                      document: widget.document,
+                    ),
+                    Positioned.fill(
+                      child: widget.showDebugPaint
+                          ? _buildDragSelection()
+                          : SizedBox(),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
         ),
-      ),
-    );
+      );
+    } else {
+
+
+      return _buildSuppressUnhandledKeySound(
+        child: _buildCursorStyle(
+          child: _buildKeyboardAndMouseInput(
+            child: SizedBox.expand(
+              child: Stack(
+                children: [
+                  _buildDocumentContainer(
+                    document: widget.document,
+                  ),
+                  Positioned.fill(
+                    child: widget.showDebugPaint
+                        ? _buildDragSelection()
+                        : SizedBox(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+    }
   }
 
   /// Wraps the [child] with a [Focus] node that reports to handle
@@ -1434,45 +1512,48 @@ class _UneditableDocumentInteractorState extends State<UneditableDocumentInterac
     GestureDragCancelCallback panCancel;
 
 
-    return MouseRegion(
-      onEnter: (V){
-        widget.parentScrollable(false);
-      },
-      onExit: (v){
-        widget.parentScrollable(true);
-      },
-      child: Listener(
-        onPointerSignal: _onPointerSignal,
-        child: RawKeyboardListener(
-          focusNode: _focusNode,
-          onKey: _onKeyPressed,
-          autofocus: true,
-          child: RawGestureDetector(
-            behavior: HitTestBehavior.translucent,
-            gestures: <Type, GestureRecognizerFactory>{
-              TapSequenceGestureRecognizer: GestureRecognizerFactoryWithHandlers<TapSequenceGestureRecognizer>(
-                    () => TapSequenceGestureRecognizer(),
-                    (TapSequenceGestureRecognizer recognizer) {
-                  recognizer
-                    ..onTapDown = _onTapDown
-                    ..onDoubleTapDown = _onDoubleTapDown
-                    ..onDoubleTap = _onDoubleTap
-                    ..onTripleTapDown = _onTripleTapDown
-                    ..onTripleTap = _onTripleTap;
-                },
-              ),
-              PanGestureRecognizer: GestureRecognizerFactoryWithHandlers<PanGestureRecognizer>(
-                    () => PanGestureRecognizer(),
-                    (PanGestureRecognizer recognizer) {
-                  recognizer
-                    ..onStart = _onPanStart
-                    ..onUpdate = _onPanUpdate
-                    ..onEnd = _onPanEnd
-                    ..onCancel = _onPanCancel;
-                },
-              ),
-            },
-            child: child,
+    return Container(
+      color: Colors.yellow,
+      child: MouseRegion(
+        onEnter: (V){
+          widget.parentScrollable(false);
+        },
+        onExit: (v){
+          widget.parentScrollable(true);
+        },
+        child: Listener(
+          onPointerSignal: _onPointerSignal,
+          child: RawKeyboardListener(
+            focusNode: _focusNode,
+            onKey: _onKeyPressed,
+            autofocus: true,
+            child: RawGestureDetector(
+              behavior: HitTestBehavior.translucent,
+              gestures: <Type, GestureRecognizerFactory>{
+                TapSequenceGestureRecognizer: GestureRecognizerFactoryWithHandlers<TapSequenceGestureRecognizer>(
+                      () => TapSequenceGestureRecognizer(),
+                      (TapSequenceGestureRecognizer recognizer) {
+                    recognizer
+                      ..onTapDown = _onTapDown
+                      ..onDoubleTapDown = _onDoubleTapDown
+                      ..onDoubleTap = _onDoubleTap
+                      ..onTripleTapDown = _onTripleTapDown
+                      ..onTripleTap = _onTripleTap;
+                  },
+                ),
+                PanGestureRecognizer: GestureRecognizerFactoryWithHandlers<PanGestureRecognizer>(
+                      () => PanGestureRecognizer(),
+                      (PanGestureRecognizer recognizer) {
+                    recognizer
+                      ..onStart = _onPanStart
+                      ..onUpdate = _onPanUpdate
+                      ..onEnd = _onPanEnd
+                      ..onCancel = _onPanCancel;
+                  },
+                ),
+              },
+              child: child,
+            ),
           ),
         ),
       ),
