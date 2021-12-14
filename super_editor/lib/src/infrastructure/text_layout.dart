@@ -1,4 +1,5 @@
 import 'package:flutter/rendering.dart';
+import 'package:characters/characters.dart';
 
 /// Contract to interrogate the layout of a blob of text.
 abstract class TextLayout {
@@ -114,7 +115,7 @@ int getCharacterEndBounds(String text, int startingCodePointIndex) {
 
   // TODO: copy the implementation of nextCharacter to this package because
   //       it's marked as visible for testing
-  final startOffset = RenderEditable.nextCharacter(startingCodePointIndex, text);
+  final startOffset = nextCharacter(startingCodePointIndex, text);
   return startOffset;
 }
 
@@ -138,6 +139,110 @@ int getCharacterStartBounds(String text, int endingCodePointIndex) {
 
   // TODO: copy the implementation of previousCharacter to this package because
   //       it's marked as visible for testing
-  final startOffset = RenderEditable.previousCharacter(endingCodePointIndex, text);
+  final startOffset = previousCharacter(endingCodePointIndex, text);
   return startOffset;
 }
+
+
+
+
+/// Returns the index into the string of the next character boundary after the
+/// given index.
+///
+/// The character boundary is determined by the characters package, so
+/// surrogate pairs and extended grapheme clusters are considered.
+///
+/// The index must be between 0 and string.length, inclusive. If given
+/// string.length, string.length is returned.
+///
+/// Setting includeWhitespace to false will only return the index of non-space
+/// characters.
+ int nextCharacter(int index, String string, [bool includeWhitespace = true]) {
+assert(index >= 0 && index <= string.length);
+if (index == string.length) {
+return string.length;
+}
+
+int count = 0;
+final Characters remaining = string.characters.skipWhile((String currentString) {
+if (count <= index) {
+count += currentString.length;
+return true;
+}
+if (includeWhitespace) {
+return false;
+}
+return _isWhitespace(currentString.codeUnitAt(0));
+});
+return string.length - remaining.toString().length;
+}
+
+/// Returns the index into the string of the previous character boundary
+/// before the given index.
+///
+/// The character boundary is determined by the characters package, so
+/// surrogate pairs and extended grapheme clusters are considered.
+///
+/// The index must be between 0 and string.length, inclusive. If index is 0,
+/// 0 will be returned.
+///
+/// Setting includeWhitespace to false will only return the index of non-space
+/// characters.
+
+ int previousCharacter(int index, String string, [bool includeWhitespace = true]) {
+assert(index >= 0 && index <= string.length);
+if (index == 0) {
+return 0;
+}
+
+int count = 0;
+int? lastNonWhitespace;
+for (final String currentString in string.characters) {
+if (!includeWhitespace &&
+!_isWhitespace(currentString.characters.first.codeUnitAt(0))) {
+lastNonWhitespace = count;
+}
+if (count + currentString.length >= index) {
+return includeWhitespace ? count : lastNonWhitespace ?? 0;
+}
+count += currentString.length;
+}
+return 0;
+}
+
+bool _isWhitespace(int codeUnit) {
+  switch (codeUnit) {
+    case 0x9: // horizontal tab
+    case 0xA: // line feed
+    case 0xB: // vertical tab
+    case 0xC: // form feed
+    case 0xD: // carriage return
+    case 0x1C: // file separator
+    case 0x1D: // group separator
+    case 0x1E: // record separator
+    case 0x1F: // unit separator
+    case 0x20: // space
+    case 0xA0: // no-break space
+    case 0x1680: // ogham space mark
+    case 0x2000: // en quad
+    case 0x2001: // em quad
+    case 0x2002: // en space
+    case 0x2003: // em space
+    case 0x2004: // three-per-em space
+    case 0x2005: // four-er-em space
+    case 0x2006: // six-per-em space
+    case 0x2007: // figure space
+    case 0x2008: // punctuation space
+    case 0x2009: // thin space
+    case 0x200A: // hair space
+    case 0x202F: // narrow no-break space
+    case 0x205F: // medium mathematical space
+    case 0x3000: // ideographic space
+      break;
+    default:
+      return false;
+  }
+  return true;
+}
+
+
